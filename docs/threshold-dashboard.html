@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threshold Analysis Dashboard — WVI PEARL</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS — WV branding + Fluent/Material-inspired system
+   ============================================================ */
+:root {
+  --navy:#0B1F3F; --navy-2:#14315C; --orange:#E86100;
+  --ink:#1A2733; --ink-2:#44546A; --ink-3:#7A8699;
+  --bg:#F5F7FA; --surface:#FFFFFF; --line:#E4E9F0;
+  --blue:#1B4F82; --blue-bg:#EAF2FA;
+  --green:#1E7D45; --green-bg:#E8F5EE;
+  --amber:#996A00; --amber-bg:#FCF3DE;
+  --red:#B3261E; --red-bg:#FBEDEC;
+  --gray:#5C6670; --gray-bg:#EEF1F5;
+  --r-lg:16px; --r-md:12px; --r-sm:8px;
+  --shadow:0 1px 2px rgba(16,34,60,.05), 0 4px 14px rgba(16,34,60,.06);
+  --shadow-lift:0 4px 10px rgba(16,34,60,.10), 0 12px 32px rgba(16,34,60,.12);
+  --font:'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; font-family:var(--font); background:var(--bg); color:var(--ink); line-height:1.55; }
+.wrap { max-width:1280px; margin:0 auto; padding:0 28px; }
+h1,h2,h3 { line-height:1.25; margin:0; }
+section { padding:56px 0 8px; scroll-margin-top:64px; }
+.sec-eyebrow { font-size:12px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--orange); margin-bottom:8px; }
+.sec-title { font-size:26px; font-weight:700; color:var(--navy); margin-bottom:8px; }
+.sec-lead { font-size:14.5px; color:var(--ink-2); max-width:760px; margin-bottom:28px; }
+.card { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:24px 26px; }
+
+/* ===== Top navigation ===== */
+.nav { position:sticky; top:0; z-index:50; background:rgba(11,31,63,.97); backdrop-filter:blur(6px); }
+.nav-in { max-width:1280px; margin:0 auto; padding:0 28px; display:flex; align-items:center; gap:6px; height:52px; overflow-x:auto; }
+.nav-brand { color:#fff; font-weight:700; font-size:13.5px; margin-right:14px; white-space:nowrap; display:flex; align-items:center; gap:9px; }
+.nav-brand .dot { width:9px; height:9px; border-radius:50%; background:var(--orange); }
+.nav a { color:#C9D8EE; text-decoration:none; font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:8px; white-space:nowrap; }
+.nav a:hover { background:rgba(255,255,255,.10); color:#fff; }
+.nav a.home { margin-left:auto; color:#FFC79E; }
+
+/* ===== S1 Hero ===== */
+.hero { background:linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 62%, #1E4470 100%); color:#fff; padding:64px 0 72px; }
+.hero .eyebrow { font-size:12px; font-weight:700; letter-spacing:1.6px; text-transform:uppercase; color:#FFB27A; margin-bottom:14px; }
+.hero h1 { font-size:40px; font-weight:700; max-width:820px; }
+.hero .sub { font-size:17px; color:#C9D8EE; margin:14px 0 0; max-width:680px; }
+.hero-grid { display:grid; grid-template-columns:1.25fr 1fr; gap:28px; align-items:start; margin-top:40px; }
+@media (max-width:900px){ .hero-grid { grid-template-columns:1fr; } .hero h1{font-size:30px;} }
+.hero-card { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:var(--r-lg); padding:26px 28px; }
+.hero-card h3 { font-size:16px; color:#fff; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.hero-card p { margin:0 0 10px; font-size:14px; color:#DCE7F5; }
+.hero-card b { color:#fff; }
+.fn-list { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+@media (max-width:560px){ .fn-list{grid-template-columns:1fr;} }
+.fn { display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.06); border-radius:var(--r-sm); padding:10px 12px; font-size:12.5px; color:#E8F0FA; }
+.fn svg { flex:0 0 18px; margin-top:1px; }
+.not-target { display:inline-flex; align-items:center; gap:8px; background:rgba(232,97,0,.18); border:1px solid rgba(255,178,122,.45);
+  color:#FFD9BC; font-weight:700; font-size:12.5px; border-radius:999px; padding:6px 14px; margin-bottom:16px; }
+
+/* ===== S2 Why ===== */
+.why-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+.why { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:22px 22px 20px; }
+.why .ic { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+.why h3 { font-size:14.5px; margin-bottom:6px; color:var(--navy); }
+.why p { margin:0; font-size:12.8px; color:var(--ink-2); }
+
+/* ===== S3 Framework ===== */
+.flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr; gap:0; align-items:stretch; margin-top:6px; }
+@media (max-width:900px){ .flow { grid-template-columns:1fr; } .flow-arrow{ transform:rotate(90deg); margin:2px auto; } }
+.flow-step { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:20px 20px 18px; border-top:4px solid var(--line); }
+.flow-step .tag { font-size:10.5px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; margin-bottom:6px; }
+.flow-step h3 { font-size:16px; color:var(--navy); margin-bottom:6px; }
+.flow-step p { margin:0; font-size:12.5px; color:var(--ink-2); }
+.flow-arrow { display:flex; align-items:center; justify-content:center; padding:0 10px; color:var(--ink-3); }
+.flow-note { margin-top:18px; background:var(--blue-bg); border-radius:var(--r-md); padding:14px 18px; font-size:13px; color:var(--blue); }
+
+/* ===== S4 Classification ===== */
+.class-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+.class-card { border-radius:var(--r-lg); box-shadow:var(--shadow); padding:22px; background:var(--surface); border-top:5px solid; }
+.class-card .head { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.class-card h3 { font-size:15px; }
+.class-card .en { font-size:11px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; opacity:.75; }
+.class-card p { margin:6px 0 0; font-size:12.6px; color:var(--ink-2); }
+.class-card .act { margin-top:12px; font-size:12px; font-weight:700; display:flex; gap:7px; align-items:flex-start; }
+
+/* ===== S5 Filters ===== */
+.filterbar { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:18px 22px; position:sticky; top:60px; z-index:40; }
+.filterbar .row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)) auto; gap:12px; align-items:end; }
+.filterbar label { display:block; font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-3); margin-bottom:5px; }
+.filterbar select { width:100%; padding:8px 10px; font-size:13px; border:1.5px solid var(--line); border-radius:var(--r-sm);
+  background:#FBFCFE; color:var(--ink); font-family:inherit; }
+.filterbar select:focus { outline:2px solid var(--blue); outline-offset:1px; }
+.btn-reset { padding:9px 16px; font-size:12.5px; font-weight:700; color:var(--blue); background:var(--blue-bg);
+  border:none; border-radius:var(--r-sm); cursor:pointer; font-family:inherit; white-space:nowrap; }
+.btn-reset:hover { background:#D9E8F7; }
+.active-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; min-height:0; }
+.chip { display:inline-flex; align-items:center; gap:7px; background:var(--navy); color:#fff; font-size:11.5px; font-weight:600;
+  border-radius:999px; padding:4px 6px 4px 12px; }
+.chip button { background:rgba(255,255,255,.22); border:none; color:#fff; width:17px; height:17px; border-radius:50%;
+  font-size:11px; line-height:1; cursor:pointer; padding:0; }
+.filter-note { font-size:11.5px; color:var(--ink-3); margin-top:10px; }
+
+/* ===== S6 KPIs ===== */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
+.kpi { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:18px 20px; }
+.kpi .t { font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-3); display:flex; align-items:center; gap:8px; }
+.kpi .v { font-size:30px; font-weight:700; color:var(--navy); margin-top:8px; line-height:1.1; }
+.kpi .s { font-size:11.8px; color:var(--ink-2); margin-top:5px; }
+.kpi .v small { font-size:15px; font-weight:600; color:var(--ink-2); }
+
+/* ===== S7 Indicator cards ===== */
+.ind-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:18px; }
+@media (max-width:430px){ .ind-grid{grid-template-columns:1fr;} }
+.ind-card { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:20px 22px 18px;
+  cursor:pointer; transition:box-shadow .18s, transform .18s; border:1.5px solid transparent; }
+.ind-card:hover { box-shadow:var(--shadow-lift); transform:translateY(-2px); }
+.ind-card:focus-visible { outline:2.5px solid var(--blue); }
+.ind-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.ind-code { font-size:11px; font-weight:700; letter-spacing:.6px; color:var(--ink-3); text-transform:uppercase; }
+.ind-name { font-size:14.5px; font-weight:700; color:var(--navy); margin-top:3px; min-height:40px; }
+.badge { font-size:11px; font-weight:700; border-radius:999px; padding:4px 12px; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; }
+.ind-nums { display:flex; gap:26px; margin:16px 0 4px; }
+.ind-nums .lbl { font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-3); }
+.ind-nums .val { font-size:21px; font-weight:700; margin-top:2px; }
+.pbar { height:8px; border-radius:5px; background:var(--gray-bg); position:relative; margin:12px 0 6px; }
+.pbar > i { position:absolute; left:0; top:0; bottom:0; border-radius:5px; }
+.pbar > s { position:absolute; top:-3px; bottom:-3px; width:2.5px; background:var(--navy); border-radius:2px; }
+.pbar-lbl { display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-3); }
+.ap-strip { display:flex; align-items:center; gap:4px; margin-top:12px; }
+.ap-strip .lbl { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-3); margin-right:6px; }
+.ap-dot { width:11px; height:11px; border-radius:50%; border:1.5px solid #fff; box-shadow:0 0 0 1px var(--line); }
+.ind-rec { font-size:12.2px; color:var(--ink-2); margin-top:12px; border-top:1px solid var(--line); padding-top:11px;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.ind-more { font-size:12px; font-weight:700; color:var(--blue); margin-top:9px; }
+
+/* ===== S8 Detail modal ===== */
+.modal-bk { position:fixed; inset:0; background:rgba(11,31,63,.45); z-index:100; display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:38px 16px; }
+.modal-bk.open { display:flex; }
+.modal { background:var(--bg); border-radius:20px; max-width:1020px; width:100%; box-shadow:var(--shadow-lift); overflow:hidden; }
+.modal-head { background:var(--navy); color:#fff; padding:24px 30px; display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+.modal-head h2 { font-size:19px; }
+.modal-head .code { font-size:11.5px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:#FFB27A; margin-bottom:5px; }
+.modal-close { background:rgba(255,255,255,.14); border:none; color:#fff; width:34px; height:34px; border-radius:50%;
+  font-size:17px; cursor:pointer; flex:0 0 34px; }
+.modal-body { padding:26px 30px 30px; display:grid; gap:16px; }
+.m-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:760px){ .m-grid2{grid-template-columns:1fr;} }
+.m-card { background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow); padding:18px 20px; }
+.m-card h3 { font-size:12px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--orange); margin-bottom:9px; }
+.m-card p { margin:0; font-size:13px; color:var(--ink-2); }
+.m-kv { display:flex; gap:24px; flex-wrap:wrap; }
+.m-kv .k { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); }
+.m-kv .v { font-size:22px; font-weight:700; color:var(--navy); }
+.ap-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+.ap-table th { text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-3);
+  padding:7px 8px; border-bottom:2px solid var(--line); }
+.ap-table td { padding:7px 8px; border-bottom:1px solid var(--gray-bg); }
+.ap-table .num { text-align:right; }
+.approach-list { display:grid; gap:8px; }
+.approach-list .row { display:grid; grid-template-columns:100px 1fr; gap:12px; font-size:12.8px; padding:8px 10px; background:var(--bg); border-radius:var(--r-sm); }
+.approach-list .k { font-weight:700; color:var(--blue); }
+.cmp-row { display:grid; grid-template-columns:96px 1fr 64px; align-items:center; gap:12px; font-size:12.5px; margin:7px 0; }
+.cmp-row .bar { height:12px; border-radius:6px; background:var(--gray-bg); position:relative; }
+.cmp-row .bar i { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--blue); }
+.cmp-row .bar s { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--navy); }
+.cmp-row .pv { font-weight:700; text-align:right; }
+.boxplot { height:64px; width:100%; }
+
+/* ===== S9 Literature ===== */
+.lit-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:760px){ .lit-grid{grid-template-columns:1fr;} }
+details.lit { background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow); padding:0; overflow:hidden; }
+details.lit summary { list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px; padding:15px 18px;
+  font-size:13.5px; font-weight:700; color:var(--navy); }
+details.lit summary::-webkit-details-marker { display:none; }
+details.lit summary .chev { margin-left:auto; transition:transform .2s; color:var(--ink-3); }
+details.lit[open] summary .chev { transform:rotate(180deg); }
+details.lit .body { padding:0 18px 16px 48px; font-size:12.8px; color:var(--ink-2); }
+.lit-src { font-size:11px; color:var(--ink-3); margin-top:8px; font-style:italic; }
+
+/* ===== S10 Key message ===== */
+.key { background:linear-gradient(135deg, var(--navy), var(--navy-2)); border-radius:20px; color:#fff; padding:40px 44px; }
+.key h2 { font-size:24px; margin-bottom:8px; }
+.key .sub { color:#C9D8EE; font-size:14px; margin-bottom:24px; }
+.key-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:760px){ .key-grid{grid-template-columns:1fr;} }
+.key-item { display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,.07); border-radius:var(--r-md); padding:14px 16px; font-size:13.2px; color:#E8F0FA; }
+.key-item svg { flex:0 0 20px; margin-top:1px; }
+.footer { text-align:center; font-size:11.5px; color:var(--ink-3); padding:36px 20px 26px; }
+.footer a { color:var(--blue); }
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+</style>
+</head>
+<body>
+
+<!-- ============ NAVIGATION ============ -->
+<nav class="nav" aria-label="Navigasi halaman">
+  <div class="nav-in">
+    <span class="nav-brand"><span class="dot"></span>WVI PEARL &middot; Threshold</span>
+    <a href="#konsep">Konsep</a>
+    <a href="#mengapa">Mengapa</a>
+    <a href="#framework">Framework</a>
+    <a href="#klasifikasi">Klasifikasi</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#indikator">Indikator</a>
+    <a href="#literatur">Literatur</a>
+    <a href="#kesimpulan">Kesimpulan</a>
+    <a class="home" href="index.html">&larr; Beranda</a>
+  </div>
+</nav>
+
+<!-- ============ SECTION 1 · HERO ============ -->
+<header class="hero" id="konsep">
+  <div class="wrap">
+    <div class="eyebrow">World Vision Indonesia &middot; PEARL Team &middot; AIM/AIM+ FY26</div>
+    <h1>Threshold Analysis Dashboard</h1>
+    <p class="sub">Understanding Indicator Quality Before National Target Setting &mdash; memahami mutu indikator outcome sebelum penetapan target nasional.</p>
+    <div class="hero-grid">
+      <div class="hero-card">
+        <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="#FFB27A"/></svg>Apa itu Threshold?</h3>
+        <div class="not-target">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFD9BC" stroke-width="2.5"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+          Threshold BUKAN target tahunan
+        </div>
+        <p><b>Threshold adalah batas mutu minimum yang dapat diterima</b> (minimum acceptable performance benchmark) untuk sebuah indikator outcome &mdash; titik acuan untuk <b>menilai apakah kondisi saat ini sudah cukup baik</b>, bukan janji hasil yang wajib dicapai pada tanggal tertentu.</p>
+        <p>Target dinegosiasikan setiap tahun fiskal dan bisa berubah; threshold relatif stabil. Program di bawah threshold memerlukan perhatian; program di atas threshold <b>tidak otomatis berarti target sudah tercapai</b> &mdash; artinya mutu perlu dipertahankan.</p>
+      </div>
+      <div class="hero-card">
+        <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Fungsi Threshold</h3>
+        <div class="fn-list">
+          <div class="fn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC7FF" stroke-width="2"><path d="M9 12l2 2 4-5"/><circle cx="12" cy="12" r="9"/></svg><span><b>Decision support</b> &mdash; dasar objektif memilih prioritas intervensi</span></div>
+          <div class="fn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC7FF" stroke-width="2"><path d="M12 3l9 17H3z"/><line x1="12" y1="10" x2="12" y2="14"/><circle cx="12" cy="17" r="0.6" fill="#8FC7FF"/></svg><span><b>Early warning</b> &mdash; sinyal dini indikator yang memburuk</span></div>
+          <div class="fn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC7FF" stroke-width="2"><path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7z"/></svg><span><b>Quality assurance</b> &mdash; standar mutu minimum outcome</span></div>
+          <div class="fn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC7FF" stroke-width="2"><path d="M4 17l5-5 4 3 7-8"/><path d="M16 7h4v4"/></svg><span><b>Adaptive management</b> &mdash; memandu penyesuaian strategi</span></div>
+          <div class="fn" style="grid-column:1/-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FC7FF" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12h8M12 8v8"/></svg><span><b>National planning</b> &mdash; fondasi evidence-based sebelum target nasional ditetapkan</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ SECTION 2 · WHY THRESHOLD MATTERS ============ -->
+<section id="mengapa">
+  <div class="wrap">
+    <div class="sec-eyebrow">Section 02</div>
+    <h2 class="sec-title">Mengapa Threshold Penting?</h2>
+    <p class="sec-lead">Lima justifikasi mengapa threshold harus ditetapkan sebelum target nasional dinegosiasikan.</p>
+    <div class="why-grid">
+      <div class="why">
+        <div class="ic" style="background:var(--blue-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B4F82" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></div>
+        <h3>Justifikasi Konseptual</h3>
+        <p>Threshold memisahkan &ldquo;kualitas minimum yang dapat diterima&rdquo; dari &ldquo;ambisi tahunan&rdquo;. Tanpa pemisahan ini, angka kecil mudah disalahartikan sebagai keberhasilan atau kegagalan.</p>
+      </div>
+      <div class="why">
+        <div class="ic" style="background:var(--green-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E7D45" stroke-width="2"><rect x="4" y="12" width="4" height="8"/><rect x="10" y="7" width="4" height="13"/><rect x="16" y="3" width="4" height="17"/></svg></div>
+        <h3>Justifikasi Statistik</h3>
+        <p>Empat pendekatan (Literatur/OIOS, Best Performer, Relative Improvement, Distribution) memberi dasar empiris. Konvergensi antar-pendekatan = angka yang defensible.</p>
+      </div>
+      <div class="why">
+        <div class="ic" style="background:var(--amber-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#996A00" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+        <h3>Manajemen Program</h3>
+        <p>Klasifikasi status (kritis / perlu perbaikan / dapat diterima) menentukan AP mana yang butuh intervensi, mana yang cukup dipantau, mana yang dipertahankan.</p>
+      </div>
+      <div class="why">
+        <div class="ic" style="background:var(--blue-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B4F82" stroke-width="2"><path d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Akuntabilitas Donor</h3>
+        <p>Threshold berbasis standar (OIOS, kuartil, bukti historis) membuat penilaian mutu dapat dipertanggungjawabkan &mdash; bukan angka &ldquo;karangan sendiri&rdquo;.</p>
+      </div>
+      <div class="why">
+        <div class="ic" style="background:var(--green-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E7D45" stroke-width="2"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v4h-4"/></svg></div>
+        <h3>Adaptive Management</h3>
+        <p>Ketika baseline diketahui posisinya terhadap threshold, strategi bisa disesuaikan lebih awal &mdash; sebelum menunggu hasil endline FY30.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 3 · FRAMEWORK ============ -->
+<section id="framework">
+  <div class="wrap">
+    <div class="sec-eyebrow">Section 03</div>
+    <h2 class="sec-title">Threshold Framework</h2>
+    <p class="sec-lead">Hubungan antara baseline, threshold, target tahunan, dan outcome jangka panjang.</p>
+    <div class="flow">
+      <div class="flow-step" style="border-top-color:var(--gray)">
+        <div class="tag" style="color:var(--gray)">1 &middot; Titik Awal</div>
+        <h3>Baseline</h3>
+        <p>Kondisi terukur saat ini (AIM+ FY26). Fakta lapangan &mdash; bukan penilaian baik/buruk.</p>
+      </div>
+      <div class="flow-arrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+      <div class="flow-step" style="border-top-color:var(--blue)">
+        <div class="tag" style="color:var(--blue)">2 &middot; Acuan Mutu</div>
+        <h3>Threshold</h3>
+        <p>Batas mutu minimum yang dapat diterima. Relatif stabil; mengklasifikasikan kualitas baseline.</p>
+      </div>
+      <div class="flow-arrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+      <div class="flow-step" style="border-top-color:var(--orange)">
+        <div class="tag" style="color:var(--orange)">3 &middot; Komitmen</div>
+        <h3>Annual Target</h3>
+        <p>Dinegosiasikan tiap tahun fiskal dengan mempertimbangkan posisi baseline terhadap threshold &amp; kapasitas program.</p>
+      </div>
+      <div class="flow-arrow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+      <div class="flow-step" style="border-top-color:var(--green)">
+        <div class="tag" style="color:var(--green)">4 &middot; Tujuan</div>
+        <h3>Long-term Outcome</h3>
+        <p>Perubahan kesejahteraan anak yang berkelanjutan (endline AIM+ FY30) &mdash; ukuran keberhasilan sesungguhnya.</p>
+      </div>
+    </div>
+    <div class="flow-note"><b>Alur baca:</b> baseline dinilai terhadap threshold &rarr; hasil klasifikasi memandu negosiasi target tahunan &rarr; target tahunan menjadi tangga menuju outcome jangka panjang. Threshold berdiri di antara fakta (baseline) dan komitmen (target) &mdash; ia alat penilaian, bukan tujuan.</div>
+  </div>
+</section>
+
+<!-- ============ SECTION 4 · CLASSIFICATION ============ -->
+<section id="klasifikasi">
+  <div class="wrap">
+    <div class="sec-eyebrow">Section 04</div>
+    <h2 class="sec-title">Klasifikasi Status Indikator</h2>
+    <p class="sec-lead">Posisi baseline terhadap threshold (disesuaikan arah indikator) menghasilkan empat kelas mutu. Kelas menentukan tindakan &mdash; bukan vonis gagal/berhasil.</p>
+    <div class="class-grid" id="class-cards"></div>
+  </div>
+</section>
+
+<!-- ============ SECTION 5 · DASHBOARD FILTERS ============ -->
+<section id="dashboard" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="sec-eyebrow">Section 05</div>
+    <h2 class="sec-title">Dashboard Analitik</h2>
+    <p class="sec-lead">Seluruh ringkasan, kartu indikator, dan halaman detail di bawah mengikuti filter ini. Data: unit record KOBO AIM+ FY26 (10.620 baris, 9 AP).</p>
+    <div class="filterbar" role="region" aria-label="Filter data">
+      <div class="row">
+        <div><label for="f-ind">Indikator</label><select id="f-ind"><option value="ALL">Semua indikator</option></select></div>
+        <div><label for="f-ap">Area Program</label><select id="f-ap"><option value="-1">Semua AP</option></select></div>
+        <div><label for="f-rc">RC / Non-RC</label><select id="f-rc"><option value="-1">Semua</option><option value="0">RC (Sponsored)</option><option value="1">Non-RC</option></select></div>
+        <div><label for="f-sex">Gender</label><select id="f-sex"><option value="-1">Semua</option><option value="0">Perempuan</option><option value="1">Laki-laki</option></select></div>
+        <div><label for="f-dir">Partisipasi</label><select id="f-dir"><option value="-1">Semua</option><option value="0">Direct</option><option value="1">Indirect</option></select></div>
+        <div><label for="f-ru">Wilayah</label><select id="f-ru"><option value="-1">Semua</option><option value="0">Rural</option><option value="1">Urban</option></select></div>
+        <button class="btn-reset" id="btn-reset" type="button">&#8635; Reset Filter</button>
+      </div>
+      <div class="active-chips" id="chips" aria-live="polite"></div>
+      <div class="filter-note" id="filter-note"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 6 · NATIONAL SUMMARY ============ -->
+<section id="ringkasan" style="padding-top:28px">
+  <div class="wrap">
+    <div class="sec-eyebrow">Section 06</div>
+    <h2 class="sec-title">National Summary</h2>
+    <p class="sec-lead">Ringkasan eksekutif posisi baseline nasional (tertimbang bobot HH target per AP) terhadap threshold usulan.</p>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="t">Dalam / Di Atas Threshold</div><div class="v" id="k-above">&mdash;</div><div class="s">indikator dengan baseline memenuhi threshold</div></div>
+      <div class="kpi"><div class="t">Di Bawah Threshold</div><div class="v" id="k-below">&mdash;</div><div class="s">indikator memerlukan perhatian</div></div>
+      <div class="kpi"><div class="t">Rata-rata Baseline</div><div class="v" id="k-avg">&mdash;</div><div class="s">rata-rata sederhana baseline tertimbang</div></div>
+      <div class="kpi"><div class="t">AP Terkuat</div><div class="v" id="k-best" style="font-size:19px">&mdash;</div><div class="s" id="k-best-s">rata-rata gap vs threshold terbaik</div></div>
+      <div class="kpi"><div class="t">AP Perlu Dukungan</div><div class="v" id="k-worst" style="font-size:19px">&mdash;</div><div class="s" id="k-worst-s">rata-rata gap vs threshold terendah</div></div>
+      <div class="kpi"><div class="t">Perlu Perhatian</div><div class="v" id="k-attn">&mdash;</div><div class="s">indikator kritis / perlu perbaikan</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SECTION 7 · INDICATOR ANALYSIS ============ -->
+<section id="indikator" style="padding-top:34px">
+  <div class="wrap">
+    <div class="sec-eyebrow">Section 07</div>
+    <h2 class="sec-title">Analisis per Indikator</h2>
+    <p class="sec-lead">Baseline (mengikuti filter), threshold usulan, gap, status, dan sebaran AP. Pilih kartu untuk membuka analisis detail.</p>
+    <div class="ind-grid" id="ind-cards"></div>
+  </div>
+</section>
+
+<!-- ============ SECTION 8 · DETAIL MODAL (dibuka dari kartu indikator) ============ -->
+<div class="modal-bk" id="modal-bk" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="code" id="m-code"></div>
+        <h2 id="modal-title"></h2>
+      </div>
+      <button class="modal-close" id="modal-close" aria-label="Tutup detail">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ============ SECTION 9 · LITERATURE ============ -->
+<section id="literatur">
+  <div class="wrap">
+    <div class="sec-eyebrow">Section 09</div>
+    <h2 class="sec-title">Landasan Literatur</h2>
+    <p class="sec-lead">Mengapa konsep threshold ada &mdash; ringkasan dari kerangka M&amp;E internasional dan referensi yang dipakai dalam analisis ini.</p>
+    <div class="lit-grid" id="lit-cards"></div>
+  </div>
+</section>
+
+<!-- ============ SECTION 10 · KEY MESSAGE ============ -->
+<section id="kesimpulan" style="padding-bottom:26px">
+  <div class="wrap">
+    <div class="key">
+      <h2>Key Message</h2>
+      <p class="sub">Yang perlu diingat setiap pembaca sebelum diskusi penetapan target nasional.</p>
+      <div class="key-grid" id="key-items"></div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  Sumber data: Analisis_4_Pendekatan_Threshold_OC3_FINAL.xlsx &middot; unit record KOBO Indonesia_KOBO AIM_CL June 17_F &middot; AIM/AIM+ FY26 &middot;
+  seluruh nilai threshold berlabel &ldquo;usulan untuk didiskusikan&rdquo; (bukan keputusan final) &middot;
+  <a href="opsi-threshold-per-indikator.html">analisis P1&ndash;P4 per indikator</a>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   DATA — hasil agregasi unit record KOBO + metadata threshold
+   dari workbook Analisis 4 Pendekatan (FINAL). Struktur:
+   aps, weights (HH target per AP), rows[ind] = [apIdx, ruIdx,
+   rcIdx, dirIdx, sexIdx, denom, num], ind[key] = metadata.
+   ============================================================ */
+const DATA = {"aps":["Bengkayang-05144","Kubu Raya-04221","Landak-03780","Manggarai Timur-04557","Manggarai-02839","Nagekeo Ngada-04678","Nias Selatan-04220","Simokerto-04222","Timor Tengah Selatan-03948"],"weights":{"Manggarai Timur-04557":7477,"Manggarai-02839":9591,"Nagekeo Ngada-04678":10442,"Nias Selatan-04220":8121,"Timor Tengah Selatan-03948":2992,"Bengkayang-05144":8808,"Kubu Raya-04221":7163,"Landak-03780":6642,"Simokerto-04222":3181},"ru":["Rural","Urban","Unknown"],"rc":["RC","NonRC","Unknown"],"dir":["Direct","Indirect","Unknown"],"sex":["Female","Male","Unknown"],"order":["IND22","IND6","IND7","IND10","IND157","C2A.027994","IND27"],"ind":{"IND22":{"code":"OIOS 22","order":1,"dirn":"down","name":"Kekerasan fisik dan/atau agresi psikologis oleh orang tua/pengasuh (12 bulan)","nameEn":"Physical violence and/or psychological aggression by parents/caregivers (past 12 months)","definition":"Proporsi remaja (12-18 tahun) yang melaporkan pernah mengalami kekerasan fisik dan/atau agresi psikologis oleh orang tua atau pengasuh dalam 12 bulan terakhir.","calculation":"Numerator: remaja yang melaporkan minimal satu bentuk kekerasan fisik/agresi psikologis dalam 12 bulan. Denominator: seluruh remaja 12-18 tahun yang tersurvei. Sumber: survei KOBO AIM+ FY26.","baseline":0.1314753821,"threshold":0.1,"thrStatus":"usulan","thrLabel":"10%","approaches":{"p1":"10% (OIOS Acceptable; Critical 20%)","p2":"7,25% (best: Nagekeo Ngada) / 10,01% (rata-rata kelompok terbaik)","p3":"Tidak dipakai — proyeksi menyentuh floor 0%","p4":"Q1 = 11,15%"},"rationale":"P1 (OIOS resmi 10%) konvergen dengan P4 (Q1 11,15%) dan rata-rata kelompok terbaik P2 (10,01%). Alternatif p2 (3,15%) dinilai terlalu ambisius; diusulkan sebagai stretch goal, bukan threshold.","recommendation":"Gunakan threshold 10% (OIOS Acceptable). Prioritas #1: Timor Tengah Selatan 32,5% melampaui bahkan batas Critical OIOS 20% — investigasi & intervensi pengasuhan positif segera. Landak 22,4% juga di atas batas Critical.","evidence":"OIOS L1 Catalogue 9 Apr 2026 (Acceptable 10% / Critical 20%, definisi identik); Q1 antar-9-AP 11,15%; TTS 168/517 kasus.","dist":{"n":9,"min":0.0725,"q1":0.1115,"med":0.1252,"q3":0.1524,"max":0.325}},"IND27":{"code":"OIOS 27","order":7,"dirn":"down","name":"Remaja yang sudah menikah","nameEn":"Proportion of adolescents who are married","definition":"Proporsi remaja (12-18 tahun) yang berstatus kawin atau pernah kawin.","calculation":"Numerator: remaja berstatus kawin/pernah kawin. Denominator: seluruh remaja 12-18 tahun tersurvei. Baseline FY26 hanya terukur di 4 AP.","baseline":0.0011784977,"threshold":null,"thrStatus":"ditunda","thrLabel":"Ditunda","approaches":{"p1":"10% Acceptable / 30% Critical (OIOS)","p2":"Tidak bermakna — semua AP mendekati nol","p3":"Tidak tersedia","p4":"Tidak bermakna — semua AP mendekati nol"},"rationale":"Baseline 0,12% jauh di bawah data pembanding nasional (BPS Susenas: perkawinan anak 5,9% tahun 2024) — kuat terindikasi underreporting akibat skip logic instrumen (YAY16). Threshold ditunda sampai instrumen diperbaiki.","recommendation":"Jangan gunakan baseline 0,12% sebagai dasar keputusan. Perbaiki instrumen endline (skip logic YAY16), triangulasi dengan data desa/KUA, lalu tetapkan threshold. Referensi jangka panjang: OIOS Acceptable 10%.","evidence":"OIOS L1 Catalogue; BPS Susenas 2024 (5,9%); baseline 2/1.966 kasus dari 4 AP Kalbar+Jatim.","dist":{"n":4,"min":0.0,"q1":0.0,"med":0.0,"q3":0.0011,"max":0.0046}},"IND6":{"code":"OIOS 6","order":2,"dirn":"up","name":"Relasi positif & damai dengan orang tua/pengasuh (12-18)","nameEn":"Positive & peaceful relations with parent(s)/caregiver(s)","definition":"Proporsi remaja (12-18 tahun) yang memiliki relasi positif dan damai dengan orang tua/pengasuh, diukur dengan skala Faith & Development internal World Vision.","calculation":"Numerator: remaja dengan skor relasi memenuhi kriteria positif & damai. Denominator: seluruh remaja 12-18 tahun tersurvei di 9 AP.","baseline":0.546013623,"threshold":0.646,"thrStatus":"usulan","thrLabel":"64,60%","approaches":{"p1":"Tidak tersedia benchmark eksternal","p2":"84,27% (best: Nagekeo Ngada — outlier) / 67,08% (rata-rata kelompok terbaik)","p3":"61,76% (proyeksi ½ laju historis TP-CESP)","p4":"Q3 = 62,74%"},"rationale":"Usulan 64,60% (baseline +10pp) konvergen dengan Q3 (62,74%), P3 (61,76%), dan rata-rata kelompok terbaik P2 (67,08%). Best performer tunggal (84,27%) adalah outlier dan tidak dipakai.","recommendation":"Threshold usulan 64,60%. Uji kelayakan: apakah AP Kalimantan Barat (30-38%) realistis mengejar level AP FRS NTT dalam 4 tahun. Replikasi praktik Nagekeo Ngada melalui pembelajaran antar-AP.","evidence":"Konvergensi 3 pendekatan di kisaran 62-67%; bukti historis TP-CESP naik 14,3pp dalam 4 tahun.","dist":{"n":9,"min":0.3051,"q1":0.3767,"med":0.5088,"q3":0.6274,"max":0.8427}},"IND7":{"code":"OIOS 7","order":3,"dirn":"up","name":"Relasi positif & damai dengan teman sebaya (12-18)","nameEn":"Positive & peaceful relations with peers","definition":"Proporsi remaja (12-18 tahun) yang memiliki relasi positif dan damai dengan teman sebaya.","calculation":"Numerator: remaja dengan skor relasi sebaya memenuhi kriteria. Denominator: seluruh remaja 12-18 tahun tersurvei di 9 AP.","baseline":0.3523026947,"threshold":0.4523,"thrStatus":"usulan","thrLabel":"45,23%","approaches":{"p1":"Tidak tersedia benchmark eksternal","p2":"77,23% (best: Nagekeo Ngada — outlier jauh) / 47,79% (rata-rata kelompok terbaik)","p3":"41,00% (proyeksi ½ laju historis)","p4":"Q3 = 36,56%"},"rationale":"Usulan 45,23% (baseline +10pp) didukung bukti Simokerto 45,86% (AP non-outlier yang sudah berada di level tsb) dan dekat dengan rata-rata kelompok terbaik P2 (47,79%). Nagekeo Ngada 77,2% adalah outlier.","recommendation":"Threshold usulan 45,23%. Fokus AP terendah: Landak 19,2%, Manggarai Timur 21,7%, Manggarai 22,0%. Program relasi sebaya & life skills berbasis sekolah/kelompok remaja.","evidence":"Simokerto 45,86% sebagai bukti tingkat tsb terjadi di AP non-outlier; historis TP-CESP naik 11,5pp/4 tahun.","dist":{"n":9,"min":0.1924,"q1":0.2204,"med":0.3014,"q3":0.3656,"max":0.7723}},"IND10":{"code":"OIOS 10","order":4,"dirn":"up","name":"Self-efficacy tinggi (remaja perempuan & laki-laki)","nameEn":"High self-efficacy (female & male adolescents)","definition":"Proporsi remaja dengan self-efficacy tinggi, diukur dengan skala NGSE 8 item. Catatan: cut-off skor individu ≥19/24 adalah measurement cut-off, bukan threshold populasi.","calculation":"Numerator: remaja dengan skor NGSE mencapai kriteria tinggi. Denominator: seluruh remaja tersurvei di 9 AP.","baseline":0.1625404492,"threshold":0.2625,"thrStatus":"usulan","thrLabel":"26,25%","approaches":{"p1":"Tidak tersedia benchmark populasi","p2":"34,04% (best: Simokerto) / 25,09% (rata-rata kelompok terbaik)","p3":"Tidak tersedia — indikator baru","p4":"Q3 = 22,05%"},"rationale":"Usulan 26,25% (baseline +10pp) berada pada posisi moderat antara Q3 (22,05%) dan best performer (34,04%), dekat dengan rata-rata kelompok terbaik P2 (25,09%).","recommendation":"Threshold usulan 26,25%. TTS 22,05% dan Simokerto 34,0% menunjukkan level tsb terjadi di beberapa konteks. Diskusikan perbedaan konteks urban vs rural; perkuat kurikulum life skills pembangun keyakinan diri.","evidence":"Simokerto (urban Jatim) 34,0%; TTS 22,1% masuk kelompok terbaik; konvergensi P2-group & P4 di 22-25%.","dist":{"n":9,"min":0.0753,"q1":0.1054,"med":0.1582,"q3":0.2205,"max":0.3404}},"IND157":{"code":"OIOS 157","order":5,"dirn":"up","name":"Berhasil memengaruhi keputusan individu","nameEn":"Successfully influenced individual decisions","definition":"Proporsi remaja yang meyakini mereka telah berhasil memengaruhi keputusan individu yang berdampak pada hidup mereka.","calculation":"Numerator: remaja yang menyatakan berhasil memengaruhi keputusan. Denominator: remaja tersurvei — baru terukur di 6 AP.","baseline":0.5258850128,"threshold":0.6166,"thrStatus":"sementara","thrLabel":"±61,7%","approaches":{"p1":"Tidak tersedia benchmark eksternal","p2":"80,32% (best: Manggarai) / 63,81% (rata-rata kelompok terbaik)","p3":"Tidak tersedia","p4":"Q3 = 61,66% (6 AP — kurang stabil)"},"rationale":"Kandidat sementara Q3 (±61,7%) karena baru 6 AP terukur dan kuartil belum stabil. Finalkan setelah data AP lengkap dan referensi internal \">70%\" tervalidasi.","recommendation":"Pakai Q3 ±61,7% sebagai kandidat sementara. Lengkapi data 3 AP tersisa. Fokus AP terendah: TTS 23,4% dan Manggarai Timur 33,2%; replikasi mekanisme partisipasi Manggarai (80,3%).","evidence":"6 AP terukur; sebaran sangat lebar 23-80%; Manggarai 80,32% sebagai bukti internal.","dist":{"n":6,"min":0.234,"q1":0.3473,"med":0.4132,"q3":0.6166,"max":0.8032}},"C2A.027994":{"code":"C2A.027994","order":6,"dirn":"up","name":"Rasa aman & kesejahteraan karena partisipasi kegiatan kelompok","nameEn":"Sense of safety & well-being due to participation in group activities","definition":"Proporsi anak yang melaporkan rasa aman dan kesejahteraan karena berpartisipasi dalam kegiatan kelompok (Stirling scale + safety items).","calculation":"Numerator: anak dengan skor memenuhi kriteria rasa aman & sejahtera. Denominator: anak tersurvei — 6 AP valid (Simokerto N=1 dikecualikan).","baseline":0.2968253226,"threshold":0.3105,"thrStatus":"sementara","thrLabel":"±31,0%","approaches":{"p1":"Kode tidak ditemukan di OIOS Catalogue — perlu validasi status","p2":"56,61% (best: Nagekeo Ngada) / 39,29% (rata-rata kelompok terbaik)","p3":"Tidak tersedia","p4":"Q3 = 31,05% (6 AP valid)"},"rationale":"Kandidat sementara Q3 (±31,0%). Prasyarat: validasi keberadaan/status indikator ini di Compendium dulu sebelum threshold difinalkan.","recommendation":"Validasi status indikator di Compendium terlebih dahulu. Sementara pakai Q3 ±31,0%. Perluas cakupan & kualitas kegiatan kelompok; pelajari Nagekeo Ngada (56,6%).","evidence":"6 AP valid; Stirling scale + safety items; norma skor individu ada, benchmark % populasi belum ditemukan.","dist":{"n":6,"min":0.1423,"q1":0.2549,"med":0.2928,"q3":0.3105,"max":0.5661}}},"rows":{"IND22":[[0,0,1,0,0,31,2],[0,0,1,0,1,45,1],[0,0,1,1,0,97,9],[0,0,1,1,1,74,5],[0,0,0,0,0,109,11],[0,0,0,0,1,85,14],[0,0,0,1,0,72,15],[0,0,0,1,1,61,7],[1,0,1,0,0,32,3],[1,0,1,0,1,22,2],[1,0,1,1,0,138,7],[1,0,1,1,1,107,11],[1,0,1,2,0,1,0],[1,0,0,0,0,93,19],[1,0,0,0,1,106,19],[1,0,0,1,0,1,0],[1,0,0,1,1,1,0],[2,0,1,0,0,33,6],[2,0,1,0,1,29,6],[2,0,1,1,0,106,29],[2,0,1,1,1,97,14],[2,0,0,0,0,84,21],[2,0,0,0,1,97,24],[2,0,0,1,1,1,0],[3,0,1,0,0,25,0],[3,0,1,0,1,52,2],[3,0,1,1,0,92,6],[3,0,1,1,1,106,15],[3,0,0,0,0,88,15],[3,0,0,0,1,87,22],[3,0,0,1,0,35,2],[3,0,0,1,1,26,2],[4,0,1,0,0,32,7],[4,0,1,0,1,34,9],[4,0,1,1,0,109,8],[4,0,1,1,1,124,27],[4,0,0,0,0,88,2],[4,0,0,0,1,104,9],[4,0,0,1,0,3,0],[4,0,0,1,1,5,1],[5,0,1,0,0,33,1],[5,0,1,0,1,27,1],[5,0,1,1,0,71,3],[5,0,1,1,1,74,9],[5,0,0,0,0,118,8],[5,0,0,0,1,123,9],[5,0,0,1,0,16,2],[5,0,0,1,1,21,2],[6,0,1,0,0,3,2],[6,0,1,0,1,6,2],[6,0,1,1,0,114,6],[6,0,1,1,1,91,7],[6,0,0,0,0,119,11],[6,0,0,0,1,131,17],[6,0,0,1,0,23,2],[6,0,0,1,1,31,2],[7,1,1,0,0,15,3],[7,1,1,0,1,16,5],[7,1,1,1,0,91,12],[7,1,1,1,1,81,13],[7,1,0,0,0,147,24],[7,1,0,0,1,107,14],[7,1,0,1,0,7,0],[7,1,0,1,1,2,0],[8,1,1,0,0,35,11],[8,1,1,0,1,45,21],[8,1,1,1,0,121,31],[8,1,1,1,1,137,51],[8,1,0,0,0,89,23],[8,1,0,0,1,90,31]],"IND27":[[0,0,1,0,0,30,0],[0,0,1,0,1,44,0],[0,0,1,1,0,98,0],[0,0,1,1,1,73,0],[0,0,0,0,0,107,0],[0,0,0,0,1,86,0],[0,0,0,1,0,72,0],[0,0,0,1,1,59,0],[1,0,1,0,0,30,0],[1,0,1,0,1,20,0],[1,0,1,1,0,136,0],[1,0,1,1,1,107,0],[1,0,0,0,0,92,0],[1,0,0,0,1,105,0],[1,0,0,1,1,2,0],[2,0,1,0,0,33,1],[2,0,1,0,1,28,0],[2,0,1,1,0,103,1],[2,0,1,1,1,96,0],[2,0,0,0,0,81,0],[2,0,0,0,1,95,0],[2,0,0,1,1,1,0],[7,1,1,0,0,17,0],[7,1,1,0,1,16,0],[7,1,1,1,0,88,0],[7,1,1,1,1,83,0],[7,1,0,0,0,146,0],[7,1,0,0,1,108,0],[7,1,0,1,0,8,0],[7,1,0,1,1,2,0]],"IND6":[[0,0,1,0,0,31,11],[0,0,1,0,1,45,19],[0,0,1,1,0,98,60],[0,0,1,1,1,74,21],[0,0,0,0,0,111,37],[0,0,0,0,1,85,28],[0,0,0,1,0,71,24],[0,0,0,1,1,61,17],[1,0,1,0,0,31,12],[1,0,1,0,1,22,4],[1,0,1,1,0,140,60],[1,0,1,1,1,107,45],[1,0,0,0,0,93,32],[1,0,0,0,1,106,28],[1,0,0,1,0,1,1],[1,0,0,1,1,2,1],[2,0,1,0,0,33,11],[2,0,1,0,1,28,7],[2,0,1,1,0,106,35],[2,0,1,1,1,99,20],[2,0,0,0,0,85,28],[2,0,0,0,1,97,35],[2,0,0,1,1,1,1],[3,0,1,0,0,25,17],[3,0,1,0,1,52,43],[3,0,1,1,0,92,46],[3,0,1,1,1,106,53],[3,0,0,0,0,88,37],[3,0,0,0,1,87,38],[3,0,0,1,0,35,17],[3,0,0,1,1,26,9],[4,0,1,0,0,32,14],[4,0,1,0,1,34,11],[4,0,1,1,0,108,69],[4,0,1,1,1,124,72],[4,0,0,0,0,88,73],[4,0,0,0,1,104,81],[4,0,0,1,0,3,2],[4,0,0,1,1,5,3],[5,0,1,0,0,32,27],[5,0,1,0,1,25,25],[5,0,1,1,0,72,60],[5,0,1,1,1,76,58],[5,0,0,0,0,118,101],[5,0,0,0,1,120,100],[5,0,0,1,0,15,13],[5,0,0,1,1,25,23],[6,0,1,0,0,3,1],[6,0,1,0,1,6,1],[6,0,1,1,0,114,77],[6,0,1,1,1,91,58],[6,0,0,0,0,119,63],[6,0,0,0,1,131,76],[6,0,0,1,0,23,21],[6,0,0,1,1,31,28],[7,1,1,0,0,17,9],[7,1,1,0,1,13,4],[7,1,1,1,0,90,59],[7,1,1,1,1,86,41],[7,1,0,0,0,149,88],[7,1,0,0,1,109,60],[7,1,0,1,0,6,3],[7,1,0,1,1,1,0],[8,1,1,0,0,39,20],[8,1,1,0,1,47,25],[8,1,1,1,0,117,53],[8,1,1,1,1,135,67],[8,1,0,0,0,89,51],[8,1,0,0,1,90,39]],"IND7":[[0,0,1,0,0,31,7],[0,0,1,0,1,45,12],[0,0,1,1,0,98,46],[0,0,1,1,1,73,24],[0,0,0,0,0,109,23],[0,0,0,0,1,85,16],[0,0,0,1,0,73,26],[0,0,0,1,1,60,19],[1,0,1,0,0,31,12],[1,0,1,0,1,21,5],[1,0,1,1,0,139,54],[1,0,1,1,1,108,42],[1,0,0,0,0,93,26],[1,0,0,0,1,106,19],[1,0,0,1,0,1,0],[1,0,0,1,1,2,0],[2,0,1,0,0,33,8],[2,0,1,0,1,28,2],[2,0,1,1,0,106,25],[2,0,1,1,1,97,14],[2,0,0,0,0,85,18],[2,0,0,0,1,97,18],[2,0,0,1,1,1,1],[3,0,1,0,0,25,3],[3,0,1,0,1,52,11],[3,0,1,1,0,92,29],[3,0,1,1,1,106,19],[3,0,0,0,0,88,22],[3,0,0,0,1,87,13],[3,0,0,1,0,35,10],[3,0,0,1,1,26,4],[4,0,1,0,0,32,5],[4,0,1,0,1,34,5],[4,0,1,1,0,109,29],[4,0,1,1,1,124,22],[4,0,0,0,0,88,24],[4,0,0,0,1,104,25],[4,0,0,1,0,3,0],[4,0,0,1,1,5,0],[5,0,1,0,0,35,30],[5,0,1,0,1,25,21],[5,0,1,1,0,69,58],[5,0,1,1,1,76,53],[5,0,0,0,0,118,92],[5,0,0,0,1,123,92],[5,0,0,1,0,15,8],[5,0,0,1,1,22,19],[6,0,1,0,0,3,1],[6,0,1,0,1,6,0],[6,0,1,1,0,114,22],[6,0,1,1,1,91,25],[6,0,0,0,0,119,36],[6,0,0,0,1,131,34],[6,0,0,1,0,23,12],[6,0,0,1,1,31,7],[7,1,1,0,0,16,8],[7,1,1,0,1,16,7],[7,1,1,1,0,91,51],[7,1,1,1,1,83,34],[7,1,0,0,0,146,73],[7,1,0,0,1,109,40],[7,1,0,1,0,9,3],[7,1,0,1,1,1,0],[8,1,1,0,0,37,14],[8,1,1,0,1,45,16],[8,1,1,1,0,119,41],[8,1,1,1,1,137,49],[8,1,0,0,0,89,44],[8,1,0,0,1,90,25]],"IND10":[[0,0,1,0,0,29,3],[0,0,1,0,1,44,8],[0,0,1,1,0,96,19],[0,0,1,1,1,74,9],[0,0,0,0,0,109,17],[0,0,0,0,1,84,19],[0,0,0,1,0,72,6],[0,0,0,1,1,61,9],[1,0,1,0,0,29,1],[1,0,1,0,1,21,2],[1,0,1,1,0,140,14],[1,0,1,1,1,107,5],[1,0,0,0,0,91,13],[1,0,0,0,1,105,9],[1,0,0,1,0,1,0],[1,0,0,1,1,2,0],[2,0,1,0,0,32,5],[2,0,1,0,1,28,4],[2,0,1,1,0,104,10],[2,0,1,1,1,99,9],[2,0,0,0,0,84,6],[2,0,0,0,1,97,13],[2,0,0,1,0,1,0],[2,0,0,1,1,1,0],[3,0,1,0,0,25,8],[3,0,1,0,1,52,14],[3,0,1,1,0,92,16],[3,0,1,1,1,106,22],[3,0,0,0,0,88,11],[3,0,0,0,1,87,10],[3,0,0,1,0,35,3],[3,0,0,1,1,26,6],[4,0,1,0,0,32,2],[4,0,1,0,1,34,5],[4,0,1,1,0,109,11],[4,0,1,1,1,124,17],[4,0,0,0,0,88,16],[4,0,0,0,1,104,16],[4,0,0,1,0,3,0],[4,0,0,1,1,5,0],[5,0,1,0,0,33,8],[5,0,1,0,1,26,4],[5,0,1,1,0,71,19],[5,0,1,1,1,75,14],[5,0,0,0,0,119,39],[5,0,0,0,1,120,29],[5,0,0,1,0,15,8],[5,0,0,1,1,25,8],[6,0,1,0,0,3,1],[6,0,1,0,1,6,1],[6,0,1,1,0,114,8],[6,0,1,1,1,91,5],[6,0,0,0,0,121,7],[6,0,0,0,1,131,11],[6,0,0,1,0,21,1],[6,0,0,1,1,31,5],[7,1,1,0,0,16,7],[7,1,1,0,1,16,5],[7,1,1,1,0,91,23],[7,1,1,1,1,83,26],[7,1,0,0,0,148,58],[7,1,0,0,1,106,34],[7,1,0,1,0,7,6],[7,1,0,1,1,3,1],[8,1,1,0,0,36,10],[8,1,1,0,1,49,6],[8,1,1,1,0,120,27],[8,1,1,1,1,133,18],[8,1,0,0,0,89,32],[8,1,0,0,1,90,21]],"IND157":[[0,0,1,0,0,31,12],[0,0,1,0,1,44,15],[0,0,1,1,0,98,47],[0,0,1,1,1,75,31],[0,0,0,0,0,110,40],[0,0,0,0,1,84,31],[0,0,0,1,0,71,28],[0,0,0,1,1,62,22],[3,0,1,0,0,25,11],[3,0,1,0,1,47,22],[3,0,1,1,0,92,35],[3,0,1,1,1,106,37],[3,0,0,0,0,88,30],[3,0,0,0,1,87,23],[3,0,0,1,0,35,7],[3,0,0,1,1,26,3],[4,0,1,0,0,32,25],[4,0,1,0,1,34,26],[4,0,1,1,0,109,79],[4,0,1,1,1,124,105],[4,0,0,0,0,87,76],[4,0,0,0,1,104,82],[4,0,0,1,0,3,3],[4,0,0,1,1,5,4],[5,0,1,0,0,32,21],[5,0,1,0,1,25,19],[5,0,1,1,0,72,46],[5,0,1,1,1,76,48],[5,0,0,0,0,113,78],[5,0,0,0,1,120,76],[5,0,0,1,0,21,19],[5,0,0,1,1,25,21],[6,0,1,0,0,3,0],[6,0,1,0,1,6,2],[6,0,1,1,0,113,63],[6,0,1,1,1,91,51],[6,0,0,0,0,119,41],[6,0,0,0,1,131,51],[6,0,0,1,0,23,4],[6,0,0,1,1,31,12],[8,1,1,0,0,35,11],[8,1,1,0,1,45,19],[8,1,1,1,0,121,16],[8,1,1,1,1,137,27],[8,1,0,0,0,89,24],[8,1,0,0,1,90,24]],"C2A.027994":[[0,0,1,2,0,121,45],[0,0,1,2,1,114,25],[0,0,0,2,0,170,33],[0,0,0,2,1,136,29],[3,0,1,2,0,113,29],[3,0,1,2,1,157,68],[3,0,0,2,0,123,30],[3,0,0,2,1,111,18],[4,0,1,2,0,141,17],[4,0,1,2,1,158,21],[4,0,0,2,0,91,15],[4,0,0,2,1,109,18],[5,0,1,2,0,104,79],[5,0,1,2,1,101,53],[5,0,0,2,0,134,67],[5,0,0,2,1,145,75],[6,0,1,2,0,117,35],[6,0,1,2,1,97,35],[6,0,0,2,0,142,38],[6,0,0,2,1,162,55],[7,1,1,2,0,1,0],[8,1,1,2,0,156,31],[8,1,1,2,1,182,66],[8,1,0,2,0,89,28],[8,1,0,2,1,90,29]]},"hasDir":{"IND22":true,"IND27":true,"IND6":true,"IND7":true,"IND10":true,"IND157":true,"C2A.027994":false}};
+
+/* ---------- Klasifikasi status (gap dalam poin persentase, arah disesuaikan) ---------- */
+const CLASSES = {
+  excellent: { label:'Excellent', en:'Well Above Threshold', color:'var(--green)', bg:'var(--green-bg)',
+    desc:'Baseline melampaui threshold dengan selisih besar (&ge;10pp).',
+    action:'Pertahankan mutu; jadikan sumber pembelajaran (best practice) untuk AP lain.', icon:'star' },
+  acceptable: { label:'Acceptable', en:'Above Threshold', color:'var(--green)', bg:'var(--green-bg)',
+    desc:'Baseline sudah berada di sisi baik threshold (0&ndash;10pp).',
+    action:'Pertahankan kualitas; monitoring rutin. Bukan berarti target sudah tercapai.', icon:'check' },
+  improve: { label:'Need Improvement', en:'Near Threshold', color:'var(--amber)', bg:'var(--amber-bg)',
+    desc:'Baseline di sisi kurang baik threshold, tetapi dekat (&lt;5pp).',
+    action:'Perkuat program yang ada dan pantau lebih ketat; potensi masuk ambang dalam waktu dekat.', icon:'trend' },
+  critical: { label:'Critical', en:'Below Threshold', color:'var(--red)', bg:'var(--red-bg)',
+    desc:'Baseline jauh di sisi kurang baik threshold (&ge;5pp).',
+    action:'Investigasi akar masalah dan prioritaskan intervensi; alokasikan dukungan tambahan.', icon:'alert' },
+  none: { label:'Belum Ditetapkan', en:'Threshold Deferred', color:'var(--gray)', bg:'var(--gray-bg)',
+    desc:'Threshold ditunda (mis. instrumen perlu diperbaiki atau status indikator perlu divalidasi).',
+    action:'Finalisasi instrumen/validasi indikator dulu; jangan menilai mutu dari baseline yang belum reliabel.', icon:'pause' },
+};
+function classify(rate, ind) {
+  if (rate==null || ind.threshold==null) return 'none';
+  const gap = ind.dirn==='up' ? rate-ind.threshold : ind.threshold-rate; // + = sisi baik
+  if (gap >= 0.10) return 'excellent';
+  if (gap >= 0) return 'acceptable';
+  if (gap > -0.05) return 'improve';
+  return 'critical';
+}
+const gapPP = (rate, ind) => rate==null||ind.threshold==null ? null :
+  (ind.dirn==='up' ? rate-ind.threshold : ind.threshold-rate) * 100;
+
+/* ---------- Ikon SVG kecil (stroke-based, konsisten) ---------- */
+const ICON = {
+  star:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l2.7 5.7 6.3.8-4.6 4.3 1.2 6.2-5.6-3.1-5.6 3.1 1.2-6.2L3 9.5l6.3-.8z"/></svg>',
+  check:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  trend:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
+  alert:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3l9 17H3z"/><line x1="12" y1="10" x2="12" y2="14"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
+  pause:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="9" y1="5" x2="9" y2="19"/><line x1="15" y1="5" x2="15" y2="19"/></svg>',
+  up:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V6M6 12l6-6 6 6"/></svg>',
+  down:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v13M6 12l6 6 6-6"/></svg>',
+};
+
+/* ---------- Utilitas format ---------- */
+const $ = id => document.getElementById(id);
+const fmtPct = (v,d=1) => v==null ? '—' : (v*100).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
+const fmtInt = v => v.toLocaleString('id-ID');
+const apShort = a => a.replace(/-\d+$/,'').replace(' (East and North)','');
+
+/* ---------- State filter ---------- */
+const state = { ind:'ALL', ap:-1, rc:-1, sex:-1, dir:-1, ru:-1 };
+const FILTER_DEFS = [
+  ['ind','f-ind','Indikator', v => v==='ALL'?null:(DATA.ind[v].code)],
+  ['ap','f-ap','AP', v => v<0?null:apShort(DATA.aps[v])],
+  ['rc','f-rc','RC', v => v<0?null:(v===0?'RC (Sponsored)':'Non-RC')],
+  ['sex','f-sex','Gender', v => v<0?null:(v===0?'Perempuan':'Laki-laki')],
+  ['dir','f-dir','Partisipasi', v => v<0?null:(v===0?'Direct':'Indirect')],
+  ['ru','f-ru','Wilayah', v => v<0?null:(v===0?'Rural':'Urban')],
+];
+
+/* ---------- Agregasi: per-AP {den,num} untuk satu indikator di bawah filter ---------- */
+function aggregate(indKey) {
+  const perAp = DATA.aps.map(()=>({den:0,num:0}));
+  for (const [ap,ru,rc,dir,sex,den,num] of DATA.rows[indKey]) {
+    if (state.ap>=0 && ap!==state.ap) continue;
+    if (state.rc>=0 && rc!==state.rc) continue;
+    if (state.dir>=0 && dir!==state.dir) continue;
+    if (state.ru>=0 && ru!==state.ru) continue;
+    if (state.sex>=0 && sex!==state.sex) continue;
+    perAp[ap].den += den; perAp[ap].num += num;
+  }
+  return perAp;
+}
+/* Baseline nasional tertimbang: Σ(bobot AP × rate AP) ÷ Σ(bobot AP), AP berdata saja */
+function weighted(perAp) {
+  let wSum=0, wr=0, den=0, num=0, nAp=0;
+  perAp.forEach((x,i) => {
+    den+=x.den; num+=x.num;
+    if (x.den>0) { nAp++; const w=DATA.weights[DATA.aps[i]]||0; wSum+=w; wr+=w*(x.num/x.den); }
+  });
+  return { rate:wSum>0?wr/wSum:null, den, num, nAp };
+}
+/* Agregasi dengan satu dimensi di-override (untuk perbandingan RC / gender) */
+function aggregateBy(indKey, dim, val) {
+  let den=0, wSum=0, wr=0;
+  const perAp = DATA.aps.map(()=>({den:0,num:0}));
+  for (const [ap,ru,rc,dir,sex,dn,nm] of DATA.rows[indKey]) {
+    if (state.ap>=0 && ap!==state.ap) continue;
+    if (dim!=='ru' && state.ru>=0 && ru!==state.ru) continue;
+    if (dim!=='rc' && state.rc>=0 && rc!==state.rc) continue;
+    if (dim!=='dir' && state.dir>=0 && dir!==state.dir) continue;
+    if (dim!=='sex' && state.sex>=0 && sex!==state.sex) continue;
+    const dv = {ru,rc,dir,sex}[dim];
+    if (dv!==val) continue;
+    perAp[ap].den+=dn; perAp[ap].num+=nm;
+  }
+  perAp.forEach((x,i)=>{ den+=x.den; if(x.den>0){ const w=DATA.weights[DATA.aps[i]]||0; wSum+=w; wr+=w*(x.num/x.den);} });
+  return { rate:wSum>0?wr/wSum:null, den };
+}
+
+/* ============================================================
+   SECTION 4 — kartu klasifikasi statis
+   ============================================================ */
+function renderClassCards() {
+  const order = ['critical','improve','acceptable','excellent'];
+  $('class-cards').innerHTML = order.map(k => {
+    const c = CLASSES[k];
+    return `<div class="class-card" style="border-top-color:${c.color}">
+      <div class="head"><span class="badge" style="background:${c.bg};color:${c.color}">${ICON[c.icon]}${c.label}</span></div>
+      <div class="en" style="color:${c.color}">${c.en}</div>
+      <p>${c.desc}</p>
+      <div class="act" style="color:${c.color}">${ICON.check}<span>${c.action}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   SECTION 5 — filter, chip filter aktif, reset
+   ============================================================ */
+function bindFilters() {
+  const selInd = $('f-ind');
+  DATA.order.forEach(k => {
+    const o=document.createElement('option'); o.value=k;
+    o.textContent = DATA.ind[k].code+' — '+DATA.ind[k].name;
+    selInd.appendChild(o);
+  });
+  const selAp=$('f-ap');
+  DATA.aps.forEach((a,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=a; selAp.appendChild(o); });
+  FILTER_DEFS.forEach(([key,id]) => $(id).addEventListener('change', e => {
+    state[key] = key==='ind' ? e.target.value : +e.target.value;
+    renderAll();
+  }));
+  $('btn-reset').addEventListener('click', () => {
+    state.ind='ALL'; state.ap=-1; state.rc=-1; state.sex=-1; state.dir=-1; state.ru=-1;
+    FILTER_DEFS.forEach(([key,id]) => $(id).value = key==='ind'?'ALL':'-1');
+    renderAll();
+  });
+}
+function renderChips() {
+  const chips=[];
+  FILTER_DEFS.forEach(([key,id,label,fmt]) => {
+    const txt = fmt(state[key]);
+    if (txt!=null) chips.push({key,id,label,txt});
+  });
+  $('chips').innerHTML = chips.length ? chips.map(c =>
+    `<span class="chip">${c.label}: ${c.txt}<button data-k="${c.key}" data-id="${c.id}" aria-label="Hapus filter ${c.label}">&times;</button></span>`).join('')
+    : '';
+  document.querySelectorAll('#chips button').forEach(b => b.addEventListener('click', () => {
+    state[b.dataset.k] = b.dataset.k==='ind' ? 'ALL' : -1;
+    $(b.dataset.id).value = b.dataset.k==='ind' ? 'ALL' : '-1';
+    renderAll();
+  }));
+  const notes=[];
+  if (state.rc>=0) notes.push('RC/Non-RC memakai jawaban YAY09 (level responden remaja); baris tanpa jawaban tereksklusi.');
+  if (state.dir>=0) notes.push('Flag Direct/Indirect tidak tersedia untuk C2A.027994 — indikator tsb kosong di bawah filter ini.');
+  $('filter-note').textContent = notes.join(' ');
+}
+
+/* ============================================================
+   SECTION 6 — KPI eksekutif nasional
+   ============================================================ */
+function renderKPIs() {
+  const keys = state.ind==='ALL' ? DATA.order : [state.ind];
+  let above=0, below=0, attn=0, sum=0, n=0;
+  const perApGap = DATA.aps.map(()=>({sum:0,n:0}));
+  keys.forEach(k => {
+    const ind=DATA.ind[k];
+    const perAp=aggregate(k); const w=weighted(perAp);
+    if (w.rate==null) return;
+    const cls=classify(w.rate,ind);
+    if (cls==='acceptable'||cls==='excellent') above++;
+    else if (cls==='improve'||cls==='critical') { below++; attn++; }
+    sum+=w.rate; n++;
+    perAp.forEach((x,i) => {
+      if (x.den>0 && ind.threshold!=null) {
+        const g=gapPP(x.num/x.den, ind);
+        perApGap[i].sum+=g; perApGap[i].n++;
+      }
+    });
+  });
+  $('k-above').textContent = above;
+  $('k-below').textContent = below;
+  $('k-attn').textContent = attn;
+  $('k-avg').textContent = n?fmtPct(sum/n):'—';
+  let best=null,worst=null;
+  perApGap.forEach((g,i)=>{ if(!g.n) return; const avg=g.sum/g.n;
+    if(best==null||avg>perApGap[best].sum/perApGap[best].n) best=i;
+    if(worst==null||avg<perApGap[worst].sum/perApGap[worst].n) worst=i; });
+  const ppTxt = v => (v>=0?'+':'')+v.toFixed(1).replace('.',',')+'pp';
+  $('k-best').textContent = best!=null?apShort(DATA.aps[best]):'—';
+  $('k-best-s').textContent = best!=null?`rata-rata gap ${ppTxt(perApGap[best].sum/perApGap[best].n)} vs threshold`:'—';
+  $('k-worst').textContent = worst!=null?apShort(DATA.aps[worst]):'—';
+  $('k-worst-s').textContent = worst!=null?`rata-rata gap ${ppTxt(perApGap[worst].sum/perApGap[worst].n)} vs threshold`:'—';
+}
+
+/* ============================================================
+   SECTION 7 — kartu analisis per indikator
+   ============================================================ */
+function renderIndCards() {
+  const keys = state.ind==='ALL' ? DATA.order : [state.ind];
+  $('ind-cards').innerHTML = keys.map(k => {
+    const ind=DATA.ind[k];
+    const perAp=aggregate(k); const w=weighted(perAp);
+    const cls=classify(w.rate,ind); const c=CLASSES[cls];
+    const gap=gapPP(w.rate,ind);
+    const gapTxt = gap==null?'—':(gap>=0?'+':'')+gap.toFixed(1).replace('.',',')+'pp';
+    const gapColor = gap==null?'var(--gray)':(gap>=0?'var(--green)':(gap>-5?'var(--amber)':'var(--red)'));
+    const barMax=Math.max(0.9, (w.rate||0)+0.05, (ind.threshold||0)+0.05);
+    const dots = perAp.map((x,i)=>{ if(!x.den) return '';
+      const r=x.num/x.den, dc=CLASSES[classify(r,ind)];
+      return `<span class="ap-dot" style="background:${dc.color}" title="${apShort(DATA.aps[i])}: ${fmtPct(r)}"></span>`;}).join('');
+    const trend = ind.dirn==='up'
+      ? `<span style="color:var(--green);display:inline-flex;align-items:center;gap:3px">${ICON.up}naik lebih baik</span>`
+      : `<span style="color:var(--blue);display:inline-flex;align-items:center;gap:3px">${ICON.down}turun lebih baik</span>`;
+    return `<div class="ind-card" data-ind="${k}" tabindex="0" role="button" aria-label="Buka detail ${ind.code}">
+      <div class="ind-top">
+        <div><div class="ind-code">${ind.code} &middot; ${trend}</div><div class="ind-name">${ind.name}</div></div>
+        <span class="badge" style="background:${c.bg};color:${c.color}">${ICON[c.icon]}${c.label}</span>
+      </div>
+      <div class="ind-nums">
+        <div><div class="lbl">Baseline</div><div class="val" style="color:var(--navy)">${fmtPct(w.rate)}</div></div>
+        <div><div class="lbl">Threshold</div><div class="val" style="color:var(--blue)">${ind.thrLabel}</div></div>
+        <div><div class="lbl">Gap</div><div class="val" style="color:${gapColor}">${gapTxt}</div></div>
+      </div>
+      <div class="pbar">
+        <i style="width:${w.rate==null?0:Math.min(100,w.rate/barMax*100)}%;background:${c.color==='var(--gray)'?'var(--ink-3)':c.color}"></i>
+        ${ind.threshold!=null?`<s style="left:${Math.min(100,ind.threshold/barMax*100)}%"></s>`:''}
+      </div>
+      <div class="pbar-lbl"><span>0%</span><span>${ind.threshold!=null?'▎threshold '+ind.thrLabel:''}</span><span>${Math.round(barMax*100)}%</span></div>
+      <div class="ap-strip"><span class="lbl">Sebaran AP</span>${dots||'<span style="font-size:11px;color:var(--ink-3)">tidak ada data di bawah filter</span>'}</div>
+      <div class="ind-rec">${ind.recommendation}</div>
+      <div class="ind-more">Lihat analisis detail &rarr;</div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.ind-card').forEach(el => {
+    el.addEventListener('click', ()=>openDetail(el.dataset.ind));
+    el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();openDetail(el.dataset.ind);} });
+  });
+}
+
+/* ============================================================
+   SECTION 8 — halaman detail interaktif (modal)
+   ============================================================ */
+function openDetail(k) {
+  const ind=DATA.ind[k];
+  const perAp=aggregate(k); const w=weighted(perAp);
+  const cls=classify(w.rate,ind); const c=CLASSES[cls];
+  $('m-code').textContent = ind.code+' · '+ind.nameEn;
+  $('modal-title').textContent = ind.name;
+
+  /* Perbandingan AP — bar horizontal dengan garis threshold */
+  const rates = perAp.map(x=>x.den?x.num/x.den:null);
+  const barMax = Math.max(0.9, ...rates.filter(r=>r!=null), ind.threshold||0);
+  const apRows = DATA.aps.map((a,i)=>{ const r=rates[i]; if(r==null) return '';
+    const dc=CLASSES[classify(r,ind)];
+    return `<div class="cmp-row"><span>${apShort(a)}</span>
+      <div class="bar"><i style="width:${r/barMax*100}%;background:${dc.color}"></i>
+      ${ind.threshold!=null?`<s style="left:${ind.threshold/barMax*100}%"></s>`:''}</div>
+      <span class="pv" style="color:${dc.color}">${fmtPct(r)}</span></div>`; }).join('');
+
+  /* Distribusi antar-AP (min–Q1–median–Q3–max) dari filter aktif */
+  const valid=rates.filter(r=>r!=null).sort((a,b)=>a-b);
+  let boxHtml='<p style="font-size:12px;color:var(--ink-3)">Data tidak cukup.</p>';
+  if (valid.length>=3) {
+    const q=p=>{const x=(valid.length-1)*p, lo=Math.floor(x); return valid[lo]+(valid[Math.ceil(x)]-valid[lo])*(x-lo);};
+    const [mn,q1,md,q3,mx]=[valid[0],q(.25),q(.5),q(.75),valid[valid.length-1]];
+    const X=v=>6+v/barMax*88;
+    boxHtml=`<svg class="boxplot" viewBox="0 0 100 30" preserveAspectRatio="none" aria-label="Distribusi antar AP">
+      <line x1="${X(mn)}" y1="15" x2="${X(mx)}" y2="15" stroke="var(--ink-3)" stroke-width="0.5"/>
+      <rect x="${X(q1)}" y="8" width="${X(q3)-X(q1)}" height="14" rx="1.5" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="0.6"/>
+      <line x1="${X(md)}" y1="8" x2="${X(md)}" y2="22" stroke="var(--blue)" stroke-width="1"/>
+      <line x1="${X(mn)}" y1="11" x2="${X(mn)}" y2="19" stroke="var(--ink-3)" stroke-width="0.7"/>
+      <line x1="${X(mx)}" y1="11" x2="${X(mx)}" y2="19" stroke="var(--ink-3)" stroke-width="0.7"/>
+      ${ind.threshold!=null?`<line x1="${X(ind.threshold)}" y1="4" x2="${X(ind.threshold)}" y2="26" stroke="var(--orange)" stroke-width="0.8" stroke-dasharray="2,1.4"/>`:''}
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-2)">
+      <span>min ${fmtPct(mn)}</span><span>Q1 ${fmtPct(q1)}</span><span>median ${fmtPct(md)}</span><span>Q3 ${fmtPct(q3)}</span><span>max ${fmtPct(mx)}</span></div>
+    ${ind.threshold!=null?`<div style="font-size:11px;color:var(--orange);margin-top:4px">┊ garis oranye = threshold ${ind.thrLabel}</div>`:''}`;
+  }
+
+  /* Perbandingan gender & RC (tertimbang, dimensi lain tetap terfilter) */
+  const cmp=(dim,vals,labels)=>vals.map((v,ix)=>{
+    const r=aggregateBy(k,dim,v);
+    if(r.rate==null) return `<div class="cmp-row"><span>${labels[ix]}</span><div class="bar"></div><span class="pv" style="color:var(--ink-3)">—</span></div>`;
+    const dc=CLASSES[classify(r.rate,ind)];
+    return `<div class="cmp-row"><span>${labels[ix]}</span>
+      <div class="bar"><i style="width:${r.rate/barMax*100}%;background:${dc.color}"></i>
+      ${ind.threshold!=null?`<s style="left:${ind.threshold/barMax*100}%"></s>`:''}</div>
+      <span class="pv">${fmtPct(r.rate)}</span></div>`;}).join('');
+
+  const thrBadge = {usulan:['Usulan untuk didiskusikan','var(--blue)','var(--blue-bg)'],
+    sementara:['Kandidat sementara','var(--amber)','var(--amber-bg)'],
+    ditunda:['Ditunda','var(--gray)','var(--gray-bg)']}[ind.thrStatus];
+
+  $('modal-body').innerHTML = `
+    <div class="m-card"><div class="m-kv">
+      <div><div class="k">Baseline (filter aktif)</div><div class="v">${fmtPct(w.rate)}</div></div>
+      <div><div class="k">Threshold</div><div class="v" style="color:var(--blue)">${ind.thrLabel}</div></div>
+      <div><div class="k">Status</div><div style="margin-top:5px"><span class="badge" style="background:${c.bg};color:${c.color}">${ICON[c.icon]}${c.label}</span></div></div>
+      <div><div class="k">Status threshold</div><div style="margin-top:5px"><span class="badge" style="background:${thrBadge[2]};color:${thrBadge[1]}">${thrBadge[0]}</span></div></div>
+      <div><div class="k">n tersaring</div><div class="v" style="font-size:18px">${fmtInt(w.den)}</div></div>
+      <div><div class="k">AP berdata</div><div class="v" style="font-size:18px">${w.nAp}</div></div>
+    </div></div>
+    <div class="m-grid2">
+      <div class="m-card"><h3>Definisi</h3><p>${ind.definition}</p></div>
+      <div class="m-card"><h3>Cara Perhitungan</h3><p>${ind.calculation}</p></div>
+    </div>
+    <div class="m-card"><h3>Rasional Threshold — 4 Pendekatan</h3>
+      <div class="approach-list">
+        <div class="row"><span class="k">P1 &middot; Literatur</span><span>${ind.approaches.p1}</span></div>
+        <div class="row"><span class="k">P2 &middot; Best Performer</span><span>${ind.approaches.p2}</span></div>
+        <div class="row"><span class="k">P3 &middot; Rel. Improvement</span><span>${ind.approaches.p3}</span></div>
+        <div class="row"><span class="k">P4 &middot; Distribution</span><span>${ind.approaches.p4}</span></div>
+      </div>
+      <p style="margin-top:12px">${ind.rationale}</p></div>
+    <div class="m-grid2">
+      <div class="m-card"><h3>Perbandingan AP</h3>${apRows||'<p style="font-size:12px;color:var(--ink-3)">Tidak ada data di bawah filter.</p>'}</div>
+      <div class="m-card">
+        <h3>Distribusi antar AP</h3>${boxHtml}
+        <h3 style="margin-top:16px">Perbandingan Gender</h3>${cmp('sex',[0,1],['Perempuan','Laki-laki'])}
+        <h3 style="margin-top:16px">Perbandingan RC</h3>${cmp('rc',[0,1],['RC','Non-RC'])}
+      </div>
+    </div>
+    <div class="m-grid2">
+      <div class="m-card" style="border-left:4px solid var(--orange)"><h3>Rekomendasi</h3><p>${ind.recommendation}</p></div>
+      <div class="m-card"><h3>Bukti &amp; Sumber</h3><p>${ind.evidence}</p></div>
+    </div>`;
+  $('modal-bk').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDetail(){ $('modal-bk').classList.remove('open'); document.body.style.overflow=''; }
+$('modal-close').addEventListener('click', closeDetail);
+$('modal-bk').addEventListener('click', e=>{ if(e.target===$('modal-bk')) closeDetail(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDetail(); });
+
+/* ============================================================
+   SECTION 9 — kartu literatur (collapsible)
+   ============================================================ */
+const LIT = [
+  ['OECD DAC','Glossary of Key Terms in Evaluation & RBM (2002): benchmark = titik rujukan/standar untuk membandingkan performa — biasanya dari standar industri atau riset, bukan komitmen waktu tertentu.','OECD-DAC Glossary, 2002'],
+  ['USAID','Performance Monitoring & Evaluation TIPS (2010): baseline dan benchmark dibedakan tegas dari target; benchmark dipakai menilai kewajaran performa sebelum target dinegosiasikan.','USAID PM&E TIPS, 2010'],
+  ['World Vision (OIOS)','OIOS L1 Indicator Catalogue menetapkan ambang Acceptable dan Critical untuk indikator tertentu (mis. OIOS 22: 10%/20%) — dipakai sebagai benchmark mutu global, bukan target kantor negara.','OIOS L1 Catalogue, 9 Apr 2026'],
+  ['UNICEF','Pemantauan indikator perlindungan anak (mis. SDG 16.2.1) memakai ambang dan klasifikasi status untuk membandingkan negara/wilayah — status ≠ target nasional masing-masing.','UNICEF Data, SDG 16.2.1'],
+  ['World Bank','Praktik results framework membedakan baseline, milestone/benchmark, dan target; benchmark menilai posisi relatif, target menyatakan komitmen bertanggal.','Results framework practice'],
+  ['Results-Based Management','Dalam RBM, threshold mengklasifikasikan status indikator (baik/waspada/kritis) untuk memicu keputusan manajemen — fungsi assessment, bukan achievement.','RBM guidance (ringkasan)'],
+  ['Adaptive Management','Threshold adalah pemicu adaptasi: ketika indikator melewati batas, strategi ditinjau. Dipakai luas di pengelolaan lingkungan (mis. Lake Tahoe Threshold Evaluation).','Lake Tahoe EIP; CCFM 1997'],
+  ['Standar Mutu Lain','UK QAA: threshold academic standard = level minimum untuk memenuhi kualifikasi. Industri (AQL/Six Sigma): batas toleransi mutu yang masih diterima. Intrafocus: target = aspirasional; threshold = batas penilaian.','UK QAA; Six Sigma DSI; Intrafocus'],
+];
+function renderLit() {
+  $('lit-cards').innerHTML = LIT.map(([t,body,src])=>`
+    <details class="lit"><summary>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h7l7 7v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M13 3v7h7"/></svg>
+      ${t}<span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></summary>
+      <div class="body">${body}<div class="lit-src">${src}</div></div>
+    </details>`).join('');
+}
+
+/* ============================================================
+   SECTION 10 — key message
+   ============================================================ */
+const KEYS = [
+  'Threshold BUKAN target tahunan — ia benchmark mutu (quality benchmark) yang relatif stabil.',
+  'Threshold mengklasifikasikan mutu outcome: kritis, perlu perbaikan, dapat diterima, excellent.',
+  'Threshold mendukung adaptive management — strategi disesuaikan begitu posisi baseline diketahui.',
+  'Threshold memandu perencanaan berbasis bukti (evidence-based) sebelum target nasional dinegosiasikan.',
+  'Threshold mencegah salah tafsir: kenaikan kecil di bawah threshold bukan bukti mutu sudah memadai.',
+  'Program di atas threshold: pertahankan mutu — bukan berarti target sudah tercapai.',
+  'Program di bawah threshold: investigasi lebih lanjut, bukan langsung divonis gagal.',
+  'Semua angka threshold di halaman ini berlabel "usulan untuk didiskusikan" — keputusan final ada di forum konsensus.',
+];
+function renderKeys() {
+  $('key-items').innerHTML = KEYS.map(t=>`<div class="key-item">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg><span>${t}</span></div>`).join('');
+}
+
+/* ---------- Render orkestrasi ---------- */
+function renderAll(){ renderChips(); renderKPIs(); renderIndCards(); }
+renderClassCards(); renderLit(); renderKeys(); bindFilters(); renderAll();
+</script>
+</body>
+</html>
