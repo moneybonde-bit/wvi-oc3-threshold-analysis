@@ -3,50 +3,225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WVI OC3 Threshold Analysis</title>
+<title>WVI PEARL — Threshold Analysis Platform</title>
 <style>
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#F2F4F6; color:#0B1F3F; }
-  .header { background:#0B1F3F; color:white; padding:30px 40px 24px; }
-  .header h1 { margin:0 0 6px; font-size:24px; }
-  .header p { margin:0; color:#CADCFC; font-size:13.5px; }
-  .accent { height:6px; background:#E86100; }
-  .container { max-width:1560px; margin:0 auto; padding:26px 28px 60px; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:18px; }
-  @media (max-width:520px) { .grid { grid-template-columns:1fr; } }
-  .card { display:flex; flex-direction:column; justify-content:space-between; background:white;
-          border-radius:14px; padding:22px 26px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.08);
-          text-decoration:none; color:#0B1F3F; border-left:6px solid #E86100;
-          transition:box-shadow .15s; min-height:150px; }
-  .card:hover { box-shadow:0 4px 14px rgba(0,0,0,0.16); }
-  .card h2 { margin:0 0 8px; font-size:17px; }
-  .card p { margin:0; font-size:12.5px; color:#5C6670; line-height:1.6; }
-  .card .go { margin-top:14px; font-size:12.5px; font-weight:700; color:#E86100; }
+:root {
+  --navy:#0B1F3F; --navy-2:#14315C; --orange:#E86100;
+  --ink:#1A2733; --ink-2:#44546A; --ink-3:#7A8699;
+  --bg:#F5F7FA; --surface:#FFFFFF; --line:#E4E9F0;
+  --blue:#1B4F82; --blue-bg:#EAF2FA;
+  --green:#1E7D45; --green-bg:#E8F5EE;
+  --amber:#996A00; --amber-bg:#FCF3DE;
+  --red:#B3261E; --red-bg:#FBEDEC;
+  --gray:#5C6670; --gray-bg:#EEF1F5;
+  --r-lg:14px; --r-md:11px; --r-sm:8px;
+  --shadow:0 1px 2px rgba(16,34,60,.05), 0 3px 10px rgba(16,34,60,.06);
+  --shadow-lift:0 4px 10px rgba(16,34,60,.10), 0 12px 30px rgba(16,34,60,.13);
+  --font:'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; font-family:var(--font); background:var(--bg); color:var(--ink); line-height:1.5; }
+.wrap { max-width:1280px; margin:0 auto; padding:0 26px; }
+h1,h2,h3 { line-height:1.25; margin:0; }
+section { padding:38px 0 6px; scroll-margin-top:62px; }
+.sec-eyebrow { font-size:11.5px; font-weight:700; letter-spacing:1.1px; text-transform:uppercase; color:var(--orange); margin-bottom:6px; }
+.sec-title { font-size:23px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.sec-lead { font-size:14px; color:var(--ink-2); max-width:760px; margin:0 0 20px; }
+.card { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:20px 22px; }
+@keyframes rise { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:none;} }
+.rise { animation:rise .35s ease both; }
+@media (prefers-reduced-motion:reduce){ .rise{animation:none;} html{scroll-behavior:auto;} }
+/* ---- global nav ---- */
+.nav { position:sticky; top:0; z-index:60; background:rgba(11,31,63,.97); backdrop-filter:blur(6px); box-shadow:0 1px 0 rgba(255,255,255,.06); }
+.nav-in { max-width:1280px; margin:0 auto; padding:0 26px; display:flex; align-items:center; gap:4px; height:52px; overflow-x:auto; }
+.nav-brand { color:#fff; font-weight:700; font-size:13px; margin-right:12px; white-space:nowrap; display:flex; align-items:center; gap:8px; text-decoration:none; }
+.nav-brand .dot { width:8px; height:8px; border-radius:50%; background:var(--orange); }
+.nav a.lnk { color:#C9D8EE; text-decoration:none; font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:8px; white-space:nowrap; }
+.nav a.lnk:hover { background:rgba(255,255,255,.10); color:#fff; }
+.nav a.lnk.active { background:rgba(255,255,255,.16); color:#fff; }
+.nav a.back { margin-left:auto; color:#FFC79E; text-decoration:none; font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:8px; white-space:nowrap; }
+.nav a.back:hover { background:rgba(232,97,0,.25); }
+/* ---- badges & chips ---- */
+.badge { font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; }
+.footer { text-align:center; font-size:11.5px; color:var(--ink-3); padding:30px 20px 24px; }
+.footer a { color:var(--blue); }
+.btn { display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:14px; border-radius:10px; padding:12px 22px; text-decoration:none; cursor:pointer; border:none; font-family:inherit; }
+.btn-primary { background:var(--orange); color:#fff; } .btn-primary:hover { background:#C75300; }
+.btn-ghost { background:rgba(255,255,255,.10); color:#fff; border:1px solid rgba(255,255,255,.25); } .btn-ghost:hover { background:rgba(255,255,255,.18); }
+
+.hero { background:linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 62%, #1E4470 100%); color:#fff; padding:52px 0 56px; }
+.hero .eyebrow { font-size:11.5px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#FFB27A; margin-bottom:12px; }
+.hero h1 { font-size:36px; font-weight:700; max-width:800px; }
+.hero .sub { font-size:16px; color:#C9D8EE; margin:12px 0 22px; max-width:660px; }
+.hero-grid { display:grid; grid-template-columns:1.25fr 1fr; gap:22px; align-items:stretch; margin-top:30px; }
+@media (max-width:900px){ .hero-grid { grid-template-columns:1fr; } .hero h1{font-size:28px;} }
+.hero-card { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:var(--r-lg); padding:22px 24px; }
+.hero-card h3 { font-size:15.5px; color:#fff; margin-bottom:10px; display:flex; align-items:center; gap:9px; }
+.hero-card p { margin:0 0 9px; font-size:13.5px; color:#DCE7F5; }
+.hero-card b { color:#fff; }
+.fn-list { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:12px; }
+@media (max-width:560px){ .fn-list{grid-template-columns:1fr;} }
+.fn { display:flex; gap:9px; align-items:flex-start; background:rgba(255,255,255,.06); border-radius:var(--r-sm); padding:9px 11px; font-size:12px; color:#E8F0FA; }
+.not-target { display:inline-flex; align-items:center; gap:8px; background:rgba(232,97,0,.18); border:1px solid rgba(255,178,122,.45);
+  color:#FFD9BC; font-weight:700; font-size:12.5px; border-radius:999px; padding:5px 13px; margin-bottom:12px; }
+.why-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
+.why { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:18px 18px 16px; display:flex; flex-direction:column; }
+.why .ic { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+.why h3 { font-size:13.8px; margin-bottom:5px; color:var(--navy); }
+.why p { margin:0; font-size:12.4px; color:var(--ink-2); }
+.flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr; gap:0; align-items:stretch; }
+@media (max-width:900px){ .flow { grid-template-columns:1fr; } .flow-arrow{ transform:rotate(90deg); margin:0 auto; } }
+.flow-step { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:16px 17px 15px; border-top:4px solid var(--line); }
+.flow-step .tag { font-size:10px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; margin-bottom:5px; }
+.flow-step h3 { font-size:15px; color:var(--navy); margin-bottom:5px; }
+.flow-step p { margin:0; font-size:12px; color:var(--ink-2); }
+.flow-arrow { display:flex; align-items:center; justify-content:center; padding:0 8px; color:var(--ink-3); }
+.flow-note { margin-top:14px; background:var(--blue-bg); border-radius:var(--r-md); padding:12px 16px; font-size:12.6px; color:var(--blue); }
+.class-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+.class-card { border-radius:var(--r-lg); box-shadow:var(--shadow); padding:18px; background:var(--surface); border-top:4px solid; display:flex; flex-direction:column; }
+.class-card .en { font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; opacity:.8; margin-top:6px; }
+.class-card p { margin:6px 0 0; font-size:12.3px; color:var(--ink-2); flex:1; }
+.class-card .act { margin-top:10px; font-size:11.6px; font-weight:700; display:flex; gap:6px; align-items:flex-start; }
+.logic { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:24px 26px; border-left:5px solid var(--orange); }
+.logic h3 { font-size:16px; color:var(--navy); margin-bottom:14px; }
+.logic-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+.logic-step { background:var(--bg); border-radius:var(--r-md); padding:16px 18px; }
+.logic-step .n { width:26px; height:26px; border-radius:50%; background:var(--navy); color:#fff; font-weight:700; font-size:13px;
+  display:flex; align-items:center; justify-content:center; margin-bottom:9px; }
+.logic-step h4 { margin:0 0 6px; font-size:13.5px; color:var(--navy); }
+.logic-step p { margin:0; font-size:12.4px; color:var(--ink-2); }
+.key { background:linear-gradient(135deg, var(--navy), var(--navy-2)); border-radius:18px; color:#fff; padding:30px 34px; }
+.key h2 { font-size:20px; margin-bottom:6px; }
+.key .sub { color:#C9D8EE; font-size:13px; margin-bottom:18px; }
+.key-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:760px){ .key-grid{grid-template-columns:1fr;} }
+.key-item { display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.07); border-radius:var(--r-md); padding:11px 14px; font-size:12.6px; color:#E8F0FA; }
+.cta-row { display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; }
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>WVI OC3 Threshold Analysis</h1>
-  <p>Visualisasi analisis threshold &amp; baseline indikator &mdash; AIM/AIM+ FY26 Indonesia</p>
-</div>
-<div class="accent"></div>
-<div class="container">
-  <div class="grid">
-    <a class="card" href="threshold-dashboard.html">
-      <div>
-        <h2>Threshold Analysis Dashboard</h2>
-        <p>Dashboard eksekutif utama: konsep threshold, framework, klasifikasi status, ringkasan nasional, analisis &amp; detail per indikator dengan filter (AP, RC/Non-RC, gender, partisipasi, wilayah), landasan literatur, dan key message. Sumber: Analisis 4 Pendekatan Threshold OC3 (FINAL) + unit record KOBO AIM+ FY26.</p>
-      </div>
-      <div class="go">Buka dashboard &rarr;</div>
-    </a>
-    <a class="card" href="opsi-threshold-per-indikator.html">
-      <div>
-        <h2>Opsi Threshold per Indikator</h2>
-        <p>Lampiran teknis: kelebihan, kekurangan &amp; rekomendasi threshold tiap indikator berdasarkan empat pendekatan: Literatur/OIOS, Best Performer, Relative Improvement, dan Distribution (P1&ndash;P4).</p>
-      </div>
-      <div class="go">Buka halaman &rarr;</div>
-    </a>
+
+<nav class="nav" aria-label="Navigasi utama">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html"><span class="dot"></span>WVI PEARL &middot; Threshold</a>
+    <a class="lnk active" href="index.html">&#127968; Home</a>
+    <a class="lnk" href="threshold-dashboard.html">&#128202; Dashboard</a>
+    <a class="lnk" href="methodology.html">&#128214; Metodologi</a>
+    <a class="lnk" href="references.html">&#128218; Referensi</a>
+    <a class="back" href="threshold-dashboard.html">&larr; Ke Dashboard</a>
   </div>
-</div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">World Vision Indonesia &middot; PEARL Team &middot; AIM/AIM+ FY26</div>
+    <h1>Threshold Analysis Platform</h1>
+    <p class="sub">Understanding Indicator Quality Before National Target Setting &mdash; pahami konsepnya di halaman ini, lalu lakukan analisis di dashboard.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="threshold-dashboard.html">&#128202; Buka Dashboard &rarr;</a>
+      <a class="btn btn-ghost" href="methodology.html">&#128214; Pelajari Metodologi</a>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-card rise">
+        <h3>Apa itu Threshold?</h3>
+        <div class="not-target">&#10005;&nbsp; Threshold BUKAN target tahunan</div>
+        <p><b>Threshold adalah batas mutu minimum yang dapat diterima</b> (minimum acceptable performance benchmark) untuk indikator outcome &mdash; titik acuan untuk <b>menilai apakah kondisi saat ini sudah cukup baik</b>, bukan janji hasil yang wajib dicapai pada tanggal tertentu.</p>
+        <p>Target dinegosiasikan setiap tahun fiskal dan bisa berubah; threshold relatif stabil. Program di bawah threshold memerlukan perhatian; program di atas threshold <b>tidak otomatis berarti target sudah tercapai</b> &mdash; artinya mutu perlu dipertahankan.</p>
+      </div>
+      <div class="hero-card rise">
+        <h3>Fungsi Threshold</h3>
+        <div class="fn-list">
+          <div class="fn"><span>&#9989;</span><span><b>Decision support</b> &mdash; dasar objektif memilih prioritas intervensi</span></div>
+          <div class="fn"><span>&#9888;&#65039;</span><span><b>Early warning</b> &mdash; sinyal dini indikator yang memburuk</span></div>
+          <div class="fn"><span>&#128737;&#65039;</span><span><b>Quality assurance</b> &mdash; standar mutu minimum outcome</span></div>
+          <div class="fn"><span>&#128260;</span><span><b>Adaptive management</b> &mdash; memandu penyesuaian strategi</span></div>
+          <div class="fn" style="grid-column:1/-1"><span>&#127963;&#65039;</span><span><b>National planning</b> &mdash; fondasi evidence-based sebelum target nasional ditetapkan</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="mengapa">
+  <div class="wrap">
+    <div class="sec-eyebrow">Konsep &middot; 01</div>
+    <h2 class="sec-title">Mengapa Threshold Penting?</h2>
+    <div class="why-grid">
+      <div class="why rise"><div class="ic" style="background:var(--blue-bg)">&#129504;</div><h3>Justifikasi Konseptual</h3><p>Memisahkan &ldquo;mutu minimum yang dapat diterima&rdquo; dari &ldquo;ambisi tahunan&rdquo; &mdash; tanpa ini, angka kecil mudah disalahartikan.</p></div>
+      <div class="why rise"><div class="ic" style="background:var(--green-bg)">&#128202;</div><h3>Justifikasi Statistik</h3><p>Empat pendekatan (P1&ndash;P4) memberi dasar empiris; konvergensi antar pendekatan menghasilkan angka yang defensible.</p></div>
+      <div class="why rise"><div class="ic" style="background:var(--amber-bg)">&#9881;&#65039;</div><h3>Manajemen Program</h3><p>Klasifikasi status menentukan AP mana yang butuh intervensi, cukup dipantau, atau dipertahankan.</p></div>
+      <div class="why rise"><div class="ic" style="background:var(--blue-bg)">&#129309;</div><h3>Akuntabilitas Donor</h3><p>Threshold berbasis standar (OIOS, kuartil, bukti historis) membuat penilaian mutu dapat dipertanggungjawabkan.</p></div>
+      <div class="why rise"><div class="ic" style="background:var(--green-bg)">&#128257;</div><h3>Adaptive Management</h3><p>Posisi baseline terhadap threshold diketahui sejak awal, sehingga strategi bisa disesuaikan sebelum endline FY30.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="framework">
+  <div class="wrap">
+    <div class="sec-eyebrow">Konsep &middot; 02</div>
+    <h2 class="sec-title">Threshold Framework</h2>
+    <div class="flow">
+      <div class="flow-step rise" style="border-top-color:var(--gray)"><div class="tag" style="color:var(--gray)">1 &middot; Titik Awal</div><h3>Baseline</h3><p>Kondisi terukur saat ini (AIM+ FY26). Fakta lapangan &mdash; bukan penilaian.</p></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-step rise" style="border-top-color:var(--blue)"><div class="tag" style="color:var(--blue)">2 &middot; Acuan Mutu</div><h3>Threshold</h3><p>Batas mutu minimum yang dapat diterima. Relatif stabil; mengklasifikasikan kualitas baseline.</p></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-step rise" style="border-top-color:var(--orange)"><div class="tag" style="color:var(--orange)">3 &middot; Komitmen</div><h3>Annual Target</h3><p>Dinegosiasikan tiap tahun fiskal berdasarkan posisi baseline terhadap threshold &amp; kapasitas program.</p></div>
+      <div class="flow-arrow">&#10132;</div>
+      <div class="flow-step rise" style="border-top-color:var(--green)"><div class="tag" style="color:var(--green)">4 &middot; Tujuan</div><h3>Long-term Outcome</h3><p>Perubahan kesejahteraan anak berkelanjutan (endline AIM+ FY30) &mdash; ukuran keberhasilan sesungguhnya.</p></div>
+    </div>
+    <div class="flow-note"><b>Alur baca:</b> baseline dinilai terhadap threshold &rarr; klasifikasi memandu negosiasi target tahunan &rarr; target menjadi tangga menuju outcome jangka panjang. Threshold berdiri di antara fakta dan komitmen &mdash; alat penilaian, bukan tujuan.</div>
+  </div>
+</section>
+
+<section id="klasifikasi">
+  <div class="wrap">
+    <div class="sec-eyebrow">Konsep &middot; 03</div>
+    <h2 class="sec-title">Klasifikasi Status Indikator</h2>
+    <p class="sec-lead">Posisi baseline terhadap threshold (disesuaikan arah indikator) menghasilkan empat kelas mutu. Kelas menentukan tindakan &mdash; bukan vonis gagal/berhasil.</p>
+    <div class="class-grid">
+      <div class="class-card rise" style="border-top-color:var(--red)"><span class="badge" style="background:var(--red-bg);color:var(--red)">&#9888; Critical</span><div class="en" style="color:var(--red)">Below Threshold (&ge;5pp)</div><p>Baseline jauh di sisi kurang baik threshold.</p><div class="act" style="color:var(--red)">&#8594;&nbsp;Investigasi akar masalah; prioritaskan intervensi.</div></div>
+      <div class="class-card rise" style="border-top-color:var(--amber)"><span class="badge" style="background:var(--amber-bg);color:var(--amber)">&#128200; Need Improvement</span><div class="en" style="color:var(--amber)">Near Threshold (&lt;5pp)</div><p>Baseline dekat threshold di sisi kurang baik.</p><div class="act" style="color:var(--amber)">&#8594;&nbsp;Perkuat program; pantau lebih ketat.</div></div>
+      <div class="class-card rise" style="border-top-color:var(--green)"><span class="badge" style="background:var(--green-bg);color:var(--green)">&#10003; Acceptable</span><div class="en" style="color:var(--green)">Above Threshold (0&ndash;10pp)</div><p>Baseline sudah berada di sisi baik threshold.</p><div class="act" style="color:var(--green)">&#8594;&nbsp;Pertahankan kualitas; monitoring rutin.</div></div>
+      <div class="class-card rise" style="border-top-color:var(--green)"><span class="badge" style="background:var(--green-bg);color:var(--green)">&#11088; Excellent</span><div class="en" style="color:var(--green)">Well Above (&ge;10pp)</div><p>Baseline melampaui threshold dengan selisih besar.</p><div class="act" style="color:var(--green)">&#8594;&nbsp;Jadikan sumber pembelajaran (best practice).</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="logika">
+  <div class="wrap">
+    <div class="sec-eyebrow">Konsep &middot; 04</div>
+    <h2 class="sec-title">Recommended Threshold Logic</h2>
+    <p class="sec-lead">Logika baku PEARL untuk memilih basis threshold &mdash; dipakai sebagai default di seluruh dashboard.</p>
+    <div class="logic rise">
+      <div class="logic-steps">
+        <div class="logic-step"><div class="n">1</div><h4>Gunakan P1 bila standar resmi ada</h4><p>Bila benchmark yang diakui internasional tersedia (OIOS, WHO, UNICEF, dsb.), selalu gunakan P1 &mdash; tervalidasi eksternal dan paling mudah dipertanggungjawabkan.</p></div>
+        <div class="logic-step"><div class="n">2</div><h4>Bila tidak ada, gunakan P2 Best Performer</h4><p>P2 merepresentasikan level kinerja yang <b>sudah terbukti dicapai</b> satu atau lebih Area Program &mdash; evidence-based, kontekstual, dan berakar pada pengalaman implementasi nyata, bukan penilaian sepihak.</p></div>
+        <div class="logic-step"><div class="n">3</div><h4>P3 &amp; P4 sebagai pendukung</h4><p>Relative Improvement dan Distribution dipakai sebagai bukti pendukung atau validasi silang ketika P1/P2 tidak tersedia atau perlu diuji konvergensinya.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pesan" style="padding-bottom:22px">
+  <div class="wrap">
+    <div class="key rise">
+      <h2>Key Message</h2>
+      <p class="sub">Yang perlu diingat sebelum masuk ke analisis.</p>
+      <div class="key-grid">
+        <div class="key-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg><span>Threshold BUKAN target tahunan &mdash; ia benchmark mutu yang relatif stabil.</span></div>
+        <div class="key-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg><span>P1 selalu diutamakan bila standar resmi internasional tersedia.</span></div>
+        <div class="key-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg><span>Tanpa P1, PEARL merekomendasikan P2 Best Performer &mdash; kinerja yang sudah terbukti pada konteks implementasi serupa.</span></div>
+        <div class="key-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg><span>P3 &amp; P4 adalah pendekatan analitis pendukung, bukan rekomendasi utama.</span></div>
+        <div class="key-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg><span>Di atas threshold: pertahankan mutu &mdash; bukan berarti target tercapai.</span></div>
+        <div class="key-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB27A" stroke-width="2.2"><path d="M4 12.5l5 5L20 6.5"/></svg><span>Di bawah threshold: investigasi lebih lanjut &mdash; bukan vonis gagal.</span></div>
+      </div>
+      <div class="cta-row" style="margin-top:20px"><a class="btn btn-primary" href="threshold-dashboard.html">Lanjut ke Dashboard &rarr;</a></div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">World Vision Indonesia &middot; PEARL Team &middot; AIM/AIM+ FY26 &middot; seluruh nilai threshold berlabel &ldquo;usulan untuk didiskusikan&rdquo; &middot; sumber: Analisis_4_Pendekatan_Threshold_OC3_FINAL.xlsx + unit record KOBO</div>
+
 </body>
 </html>

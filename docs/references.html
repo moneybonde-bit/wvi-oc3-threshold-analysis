@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referensi — WVI PEARL Threshold Analysis</title>
+<style>
+:root {
+  --navy:#0B1F3F; --navy-2:#14315C; --orange:#E86100;
+  --ink:#1A2733; --ink-2:#44546A; --ink-3:#7A8699;
+  --bg:#F5F7FA; --surface:#FFFFFF; --line:#E4E9F0;
+  --blue:#1B4F82; --blue-bg:#EAF2FA;
+  --green:#1E7D45; --green-bg:#E8F5EE;
+  --amber:#996A00; --amber-bg:#FCF3DE;
+  --red:#B3261E; --red-bg:#FBEDEC;
+  --gray:#5C6670; --gray-bg:#EEF1F5;
+  --r-lg:14px; --r-md:11px; --r-sm:8px;
+  --shadow:0 1px 2px rgba(16,34,60,.05), 0 3px 10px rgba(16,34,60,.06);
+  --shadow-lift:0 4px 10px rgba(16,34,60,.10), 0 12px 30px rgba(16,34,60,.13);
+  --font:'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; font-family:var(--font); background:var(--bg); color:var(--ink); line-height:1.5; }
+.wrap { max-width:1280px; margin:0 auto; padding:0 26px; }
+h1,h2,h3 { line-height:1.25; margin:0; }
+section { padding:38px 0 6px; scroll-margin-top:62px; }
+.sec-eyebrow { font-size:11.5px; font-weight:700; letter-spacing:1.1px; text-transform:uppercase; color:var(--orange); margin-bottom:6px; }
+.sec-title { font-size:23px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.sec-lead { font-size:14px; color:var(--ink-2); max-width:760px; margin:0 0 20px; }
+.card { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:20px 22px; }
+@keyframes rise { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:none;} }
+.rise { animation:rise .35s ease both; }
+@media (prefers-reduced-motion:reduce){ .rise{animation:none;} html{scroll-behavior:auto;} }
+/* ---- global nav ---- */
+.nav { position:sticky; top:0; z-index:60; background:rgba(11,31,63,.97); backdrop-filter:blur(6px); box-shadow:0 1px 0 rgba(255,255,255,.06); }
+.nav-in { max-width:1280px; margin:0 auto; padding:0 26px; display:flex; align-items:center; gap:4px; height:52px; overflow-x:auto; }
+.nav-brand { color:#fff; font-weight:700; font-size:13px; margin-right:12px; white-space:nowrap; display:flex; align-items:center; gap:8px; text-decoration:none; }
+.nav-brand .dot { width:8px; height:8px; border-radius:50%; background:var(--orange); }
+.nav a.lnk { color:#C9D8EE; text-decoration:none; font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:8px; white-space:nowrap; }
+.nav a.lnk:hover { background:rgba(255,255,255,.10); color:#fff; }
+.nav a.lnk.active { background:rgba(255,255,255,.16); color:#fff; }
+.nav a.back { margin-left:auto; color:#FFC79E; text-decoration:none; font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:8px; white-space:nowrap; }
+.nav a.back:hover { background:rgba(232,97,0,.25); }
+/* ---- badges & chips ---- */
+.badge { font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; }
+.footer { text-align:center; font-size:11.5px; color:var(--ink-3); padding:30px 20px 24px; }
+.footer a { color:var(--blue); }
+.btn { display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:14px; border-radius:10px; padding:12px 22px; text-decoration:none; cursor:pointer; border:none; font-family:inherit; }
+.btn-primary { background:var(--orange); color:#fff; } .btn-primary:hover { background:#C75300; }
+.btn-ghost { background:rgba(255,255,255,.10); color:#fff; border:1px solid rgba(255,255,255,.25); } .btn-ghost:hover { background:rgba(255,255,255,.18); }
+
+.rhead { background:linear-gradient(135deg,var(--navy),var(--navy-2)); color:#fff; padding:26px 0 22px; }
+.rhead h1 { font-size:24px; } .rhead p { margin:6px 0 0; color:#C9D8EE; font-size:13px; max-width:720px; }
+.lit-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:760px){ .lit-grid{grid-template-columns:1fr;} }
+.lit { background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow); padding:18px 20px; border-left:4px solid var(--blue); }
+.lit h3 { font-size:14px; color:var(--navy); margin-bottom:7px; display:flex; align-items:center; gap:8px; }
+.lit p { margin:0; font-size:12.7px; color:var(--ink-2); }
+.lit .src { font-size:11px; color:var(--ink-3); font-style:italic; margin-top:8px; }
+.srcbox { background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow); padding:18px 20px; font-size:12px; color:var(--ink-2); line-height:1.8; }
+.srcbox b { color:var(--navy); }
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Navigasi utama">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html"><span class="dot"></span>WVI PEARL &middot; Threshold</a>
+    <a class="lnk" href="index.html">&#127968; Home</a>
+    <a class="lnk" href="threshold-dashboard.html">&#128202; Dashboard</a>
+    <a class="lnk" href="methodology.html">&#128214; Metodologi</a>
+    <a class="lnk active" href="references.html">&#128218; Referensi</a>
+    <a class="back" href="index.html">&larr; Ke Beranda</a>
+  </div>
+</nav>
+
+<header class="rhead"><div class="wrap"><h1>Referensi</h1>
+  <p>Landasan konsep threshold dari kerangka M&amp;E internasional dan sumber yang dipakai dalam analisis ini.</p></div></header>
+<section><div class="wrap">
+  <div class="sec-eyebrow">Referensi &middot; 01</div>
+  <h2 class="sec-title">Kerangka M&amp;E &amp; Standar Mutu</h2>
+  <div class="lit-grid"><div class="lit rise"><h3>📄 OECD DAC</h3><p>Glossary of Key Terms in Evaluation & RBM (2002): benchmark = titik rujukan/standar untuk membandingkan performa — biasanya dari standar industri atau riset, bukan komitmen bertanggal.</p><div class="src">OECD-DAC Glossary, 2002</div></div><div class="lit rise"><h3>📄 USAID</h3><p>Performance Monitoring & Evaluation TIPS (2010): baseline dan benchmark dibedakan tegas dari target; benchmark menilai kewajaran performa sebelum target dinegosiasikan.</p><div class="src">USAID PM&E TIPS, 2010</div></div><div class="lit rise"><h3>📄 World Vision (OIOS)</h3><p>OIOS L1 Indicator Catalogue menetapkan ambang Acceptable & Critical untuk indikator tertentu (mis. OIOS 22: 10%/20%) — benchmark mutu global, bukan target kantor negara.</p><div class="src">OIOS L1 Catalogue, 9 Apr 2026</div></div><div class="lit rise"><h3>📄 UNICEF</h3><p>Pemantauan indikator perlindungan anak (mis. SDG 16.2.1) memakai ambang & klasifikasi status untuk membandingkan wilayah — status &ne; target nasional.</p><div class="src">UNICEF Data, SDG 16.2.1</div></div><div class="lit rise"><h3>📄 World Bank</h3><p>Results framework membedakan baseline, milestone/benchmark, dan target; benchmark menilai posisi relatif, target menyatakan komitmen bertanggal.</p><div class="src">Results framework practice</div></div><div class="lit rise"><h3>📄 Results-Based Management</h3><p>Threshold mengklasifikasikan status indikator (baik/waspada/kritis) untuk memicu keputusan manajemen — fungsi assessment, bukan achievement.</p><div class="src">RBM guidance (ringkasan)</div></div><div class="lit rise"><h3>📄 Adaptive Management</h3><p>Threshold sebagai pemicu adaptasi: ketika indikator melewati batas, strategi ditinjau. Dipakai luas di pengelolaan lingkungan (Lake Tahoe Threshold Evaluation).</p><div class="src">Lake Tahoe EIP; CCFM 1997</div></div><div class="lit rise"><h3>📄 Standar Mutu Lain</h3><p>UK QAA: threshold academic standard = level minimum untuk memenuhi kualifikasi. Industri (AQL/Six Sigma): batas toleransi mutu. Intrafocus: target aspirasional, threshold batas penilaian.</p><div class="src">UK QAA; Six Sigma DSI; Intrafocus</div></div></div>
+</div></section>
+<section style="padding-bottom:24px"><div class="wrap">
+  <div class="sec-eyebrow">Referensi &middot; 02</div>
+  <h2 class="sec-title">Sumber Data &amp; Benchmark</h2>
+  <div class="srcbox">
+    <b>Data primer:</b> Analisis_4_Pendekatan_Threshold_OC3_FINAL.xlsx (sheet Data_Dasar, P1&ndash;P4, Summary_Rekomendasi, Triangulasi, Definisi_Threshold).<br>
+    <b>Unit record:</b> Indonesia_KOBO AIM_CL June 17_F (10.620 baris, 9 AP), kolom IND*_Num / IND*_Denom.<br>
+    <b>Benchmark P1:</b> OIOS L1 Indicator Catalogue, 9 Apr 2026.<br>
+    <b>Pembanding eksternal:</b> BPS Susenas 2024 (perkawinan anak 5,9%); UNICEF Data (SDG 16.2.1).<br>
+    <b>Bukti historis P3:</b> TP-CESP baseline &amp; evaluasi (periode 4 tahun).<br>
+    <b>Sumber literatur:</b> OECD-DAC Glossary (2002); USAID PM&amp;E TIPS (2010); UK QAA Analytic Quality Glossary; Six Sigma DSI (AQL); Intrafocus (Targets and Thresholds); Lake Tahoe Environmental Improvement Program; Canadian Council of Forest Ministers (1997).
+  </div>
+</div></section>
+
+<div class="footer">World Vision Indonesia &middot; PEARL Team &middot; AIM/AIM+ FY26 &middot; seluruh nilai threshold berlabel &ldquo;usulan untuk didiskusikan&rdquo; &middot; sumber: Analisis_4_Pendekatan_Threshold_OC3_FINAL.xlsx + unit record KOBO</div>
+
+</body>
+</html>
