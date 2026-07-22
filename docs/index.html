@@ -7,35 +7,46 @@
 <style>
   * { box-sizing: border-box; }
   body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#F2F4F6; color:#0B1F3F; }
-  .header { background:#0B1F3F; color:white; padding:32px 48px 24px; }
+  .header { background:#0B1F3F; color:white; padding:30px 40px 24px; }
   .header h1 { margin:0 0 6px; font-size:24px; }
   .header p { margin:0; color:#CADCFC; font-size:13.5px; }
   .accent { height:6px; background:#E86100; }
-  .container { max-width:760px; margin:0 auto; padding:24px; }
-  .list { list-style:none; margin:0; padding:0; }
-  .list li { background:white; border-radius:10px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-  .list a { display:block; padding:16px 20px; color:#0B1F3F; text-decoration:none; font-weight:700; font-size:14px; }
-  .list a:hover { color:#E86100; }
-  .list p { margin:4px 20px 16px; font-size:12.5px; color:#5C6670; }
+  .container { max-width:1560px; margin:0 auto; padding:26px 28px 60px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:18px; }
+  @media (max-width:520px) { .grid { grid-template-columns:1fr; } }
+  .card { display:flex; flex-direction:column; justify-content:space-between; background:white;
+          border-radius:14px; padding:22px 26px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.08);
+          text-decoration:none; color:#0B1F3F; border-left:6px solid #E86100;
+          transition:box-shadow .15s; min-height:150px; }
+  .card:hover { box-shadow:0 4px 14px rgba(0,0,0,0.16); }
+  .card h2 { margin:0 0 8px; font-size:17px; }
+  .card p { margin:0; font-size:12.5px; color:#5C6670; line-height:1.6; }
+  .card .go { margin-top:14px; font-size:12.5px; font-weight:700; color:#E86100; }
 </style>
 </head>
 <body>
 <div class="header">
   <h1>WVI OC3 Threshold Analysis</h1>
-  <p>Kumpulan visualisasi analisis threshold indikator</p>
+  <p>Visualisasi analisis threshold &amp; baseline indikator &mdash; AIM/AIM+ FY26 Indonesia</p>
 </div>
 <div class="accent"></div>
 <div class="container">
-  <ul class="list">
-    <li>
-      <a href="opsi-threshold-per-indikator.html">Opsi Threshold per Indikator</a>
-      <p>Kelebihan, kekurangan &amp; rekomendasi threshold tiap indikator (P1&ndash;P4)</p>
-    </li>
-    <li>
-      <a href="ap-indicator-dashboard.html">Dashboard Indikator per AP</a>
-      <p>Kalkulasi nasional (tertimbang) &amp; per AP dengan filter AP, indikator, RC/Non-RC (sponsorship), partisipasi program, wilayah, dan jenis kelamin &mdash; sumber: Indonesia_KOBO AIM_CL June 17_F</p>
-    </li>
-  </ul>
+  <div class="grid">
+    <a class="card" href="opsi-threshold-per-indikator.html">
+      <div>
+        <h2>Opsi Threshold per Indikator</h2>
+        <p>Kelebihan, kekurangan &amp; rekomendasi threshold tiap indikator berdasarkan empat pendekatan: Literatur/OIOS, Best Performer, Relative Improvement, dan Distribution (P1&ndash;P4).</p>
+      </div>
+      <div class="go">Buka halaman &rarr;</div>
+    </a>
+    <a class="card" href="ap-indicator-dashboard.html">
+      <div>
+        <h2>Dashboard Indikator per AP</h2>
+        <p>Baseline nasional (tertimbang) &amp; per Area Program terhadap ambang, dengan filter AP, indikator, RC/Non-RC (sponsorship), partisipasi program, wilayah, dan jenis kelamin. Sumber: Indonesia_KOBO AIM_CL June 17_F.</p>
+      </div>
+      <div class="go">Buka halaman &rarr;</div>
+    </a>
+  </div>
 </div>
 </body>
 </html>

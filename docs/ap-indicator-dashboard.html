@@ -29,7 +29,7 @@
   .sum-group-label { font-size:11.5px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
                      margin:14px 2px 8px; }
   .sg-attn { color:#791F1F; } .sg-ok { color:#3B6D11; } .sg-mon { color:#1B4F82; }
-  .sum-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .sum-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
   .sum-card { background:white; border-radius:12px; padding:14px 16px 12px; box-shadow:0 1px 3px rgba(0,0,0,0.08);
               cursor:pointer; border:2px solid transparent; border-left-width:6px; transition:box-shadow .15s; }
   .sum-card:hover { box-shadow:0 3px 10px rgba(0,0,0,0.15); }
@@ -90,14 +90,14 @@
   <a class="btn-back" href="index.html">&larr; Kembali</a>
   <div>
     <h1>Dashboard Indikator per AP</h1>
-    <p>AIM/AIM+ FY26 Indonesia &mdash; ringkasan seluruh indikator, detail per indikator, dan rekomendasi tindak lanjut &middot; filter: AP, indikator, RC/Non-RC (sponsorship), partisipasi program, wilayah, jenis kelamin</p>
+    <p>AIM/AIM+ FY26 Indonesia &mdash; baseline per indikator terhadap ambang (threshold). Tren dinilai pada endline AIM+.</p>
   </div>
 </div>
 <div class="accent"></div>
 <div class="container">
 
   <div class="filters">
-    <div><label>Indikator (untuk detail)</label><select id="f-ind"></select></div>
+    <div><label>Indikator</label><select id="f-ind"></select></div>
     <div><label>Area Program (AP)</label><select id="f-ap"><option value="-1">Semua AP</option></select></div>
     <div><label>Status RC (Sponsored)</label><select id="f-rc">
       <option value="-1">Semua</option><option value="0">RC (Sponsored)</option>
@@ -112,11 +112,11 @@
   </div>
 
   <div class="sec-title">Ringkasan Seluruh Indikator</div>
-  <p class="sec-sub">Rate nasional tertimbang tiap indikator di bawah filter aktif (kecuali filter indikator). Indikator yang belum mencapai ambang atau punya AP di atas ambang ditampilkan paling atas. Klik kartu untuk membuka detail. Catatan: FY26 adalah baseline, jadi status dinilai terhadap ambang &mdash; belum ada data tren antar-tahun.</p>
+  <p class="sec-sub">Rate nasional tertimbang per indikator, mengikuti filter aktif.</p>
   <div id="summary"></div>
 
   <div class="sec-title" id="detail-anchor">Detail per Indikator</div>
-  <p class="sec-sub">Gunakan filter Indikator di atas, atau klik kartu ringkasan.</p>
+  
 
   <div class="kpis">
     <div class="kpi"><div class="t">Nasional (Tertimbang)</div><div class="v" id="k-weighted">&mdash;</div><div class="s">bobot HH target per AP</div></div>
@@ -124,7 +124,7 @@
     <div class="kpi"><div class="t">Denominator</div><div class="v" id="k-denom">&mdash;</div><div class="s">jumlah responden tersaring</div></div>
     <div class="kpi"><div class="t">Numerator</div><div class="v" id="k-num">&mdash;</div><div class="s">responden memenuhi indikator</div></div>
     <div class="kpi"><div class="t">AP dengan data</div><div class="v" id="k-aps">&mdash;</div><div class="s">dari 9 AP tersurvei</div></div>
-    <div class="kpi"><div class="t">AP Perlu Perhatian</div><div class="v" id="k-apfail">&mdash;</div><div class="s">di sisi salah ambang</div></div>
+    <div class="kpi"><div class="t">AP Perlu Perhatian</div><div class="v" id="k-apfail">&mdash;</div><div class="s">baseline di luar ambang</div></div>
   </div>
 
   <div class="detail-grid">
@@ -162,7 +162,7 @@
     <p><b>Nasional tertimbang:</b> &Sigma;(bobot AP &times; rate AP) &divide; &Sigma;(bobot AP), bobot = HH Targeted per AP (total 64.417 HH), dinormalisasi ulang hanya pada AP yang punya data di bawah filter aktif &mdash; metode yang sama dengan Summary Dashboard di workbook sumber.</p>
     <p><b>Status RC / Sponsorship:</b> dari kolom <i>YAY09_Are_you_sponsored_by_World_Vision</i> (level responden remaja). RC = &ldquo;Yes&rdquo;, Non-RC = &ldquo;No&rdquo; &mdash; definisi yang sama dengan disagregasi Sponsored/Not Sponsored di Summary Dashboard.</p>
     <p><b>Partisipasi program (Direct/Indirect):</b> dari kolom <i>OIOS_xx_direct</i> per indikator; tidak tersedia untuk Indicator 167 dan C2A.027994.</p>
-    <p><b>Rekomendasi:</b> disusun dari posisi capaian terhadap ambang, sebaran antar-AP (best/worst performer), dan analisis threshold P1&ndash;P4 pada halaman Opsi Threshold. Angka acuan di rekomendasi memakai kondisi tanpa filter (semua responden).</p>
+    <p><b>Rekomendasi:</b> disusun dari posisi baseline terhadap ambang, sebaran antar-AP (best/worst performer), dan analisis threshold P1&ndash;P4 pada halaman Opsi Threshold. Angka acuan di rekomendasi memakai kondisi tanpa filter (semua responden).</p>
     <p><b>Validasi:</b> agregasi dicek identik dengan sheet dashboard per indikator di workbook sumber (mis. IND22: Manggarai Timur 64/511, TTS 168/517, nasional tertimbang 13,15%).</p>
   </div>
 </div>
@@ -173,19 +173,19 @@ const DATA = {"aps":["Bengkayang-05144","Kubu Raya-04221","Landak-03780","Mangga
 
 const REKOM = {
  'IND27': {
-  aksi: 'Pertahankan capaian (0,12% nasional, jauh di bawah ambang 20%), tetapi prioritaskan pembenahan pengukuran: hampir semua AP melaporkan 0% pernikahan remaja, pola yang kuat mengindikasikan underreporting, bukan ketiadaan kasus.',
+  aksi: 'Baseline sangat rendah (0,12% nasional, jauh di bawah ambang 20%), tetapi prioritaskan pembenahan pengukuran: hampir semua AP melaporkan 0% pernikahan remaja, pola yang kuat mengindikasikan underreporting, bukan ketiadaan kasus.',
   pendekatan: 'Triangulasi data survei dengan sumber administratif (data desa, KUA, catatan sekolah) dan diskusi kelompok terarah; latih ulang enumerator untuk menanyakan status pernikahan secara sensitif; tetap pakai ambang resmi OIOS 10% (P1) sampai kualitas data terverifikasi.',
   alasan: 'Angka yang mendekati nol membuat metode berbasis data (P2/P4) tidak bermakna, sehingga keputusan program harus berpegang ke standar resmi. Membenahi pengukuran dulu mencegah salah menyimpulkan bahwa masalah sudah selesai.'
  },
  'IND22': {
-  aksi: 'Fokuskan intervensi ke dua AP yang melampaui ambang 20%: Timor Tengah Selatan (32,5%) dan Landak (22,4%). Secara nasional (13,2%) target tercapai, tetapi angka itu menutupi konsentrasi kasus kekerasan di kedua AP tersebut. Pantau juga selisih RC vs Non-RC (14,2% vs 11,9%).',
+  aksi: 'Fokuskan intervensi ke dua AP yang melampaui ambang 20%: Timor Tengah Selatan (32,5%) dan Landak (22,4%). Baseline nasional (13,2%) berada di bawah ambang, tetapi angka itu menutupi konsentrasi kasus kekerasan di kedua AP tersebut. Pantau juga selisih RC vs Non-RC (14,2% vs 11,9%).',
   pendekatan: 'Program pengasuhan positif (positive discipline) untuk orang tua/pengasuh di kedua AP prioritas, dikombinasikan dengan penguatan mekanisme perlindungan anak berbasis komunitas; manfaatkan kanal pendampingan sponsorship yang sudah ada di AP tersebut.',
-  alasan: 'Intervensi tertarget di AP bermasalah jauh lebih efisien daripada program merata: tujuh dari sembilan AP sudah di bawah ambang, dan analisis threshold (P1, P2, P4 konvergen di 10&ndash;11%) menunjukkan penurunan ke tingkat itu terbukti bisa dicapai AP lain.'
+  alasan: 'Intervensi tertarget di AP bermasalah jauh lebih efisien daripada program merata: tujuh dari sembilan AP sudah di bawah ambang, dan analisis threshold (P1, P2, P4 konvergen di 10&ndash;11%) menunjukkan tingkat serendah itu memang terjadi di AP lain.'
  },
  'IND6': {
   aksi: 'Tutup kesenjangan &plusmn;15 poin ke ambang 70% (nasional 54,6%). Prioritaskan tiga AP Kalimantan Barat yang terendah: Landak (30,5%), Kubu Raya (36,5%), Bengkayang (37,7%).',
   pendekatan: 'Replikasi praktik Nagekeo Ngada (84,3%, jauh di atas ambang) melalui pembelajaran antar-AP: modul komunikasi orang tua&ndash;remaja, kegiatan keluarga terstruktur, dan sesi pengasuhan remaja yang terbukti berjalan di sana.',
-  alasan: 'Variasi antar-AP sangat lebar (30&ndash;84%), artinya hambatan utamanya adalah praktik program, bukan konteks nasional. Best performer internal adalah bukti paling kuat bahwa ambang 70% realistis dicapai.'
+  alasan: 'Variasi antar-AP sangat lebar (30&ndash;84%), artinya hambatan utamanya adalah praktik program, bukan konteks nasional. Best performer internal adalah bukti paling kuat bahwa ambang 70% realistis.'
  },
  'IND7': {
   aksi: 'Ini salah satu kesenjangan terbesar: nasional 35,2% vs ambang 70%, dan hanya Nagekeo Ngada (77,2%) yang sudah melampaui. Prioritaskan Landak (19,2%), Manggarai Timur (21,7%), dan Manggarai (22,0%).',
@@ -198,14 +198,14 @@ const REKOM = {
   alasan: 'Ambang yang terlalu jauh dari baseline kehilangan fungsi motivasi dan evaluasi. Target bertahap berbasis best performer dan distribusi data adalah cara yang defensible untuk tetap ambisius tanpa mengabaikan realitas baseline.'
  },
  'IND60_AD': {
-  aksi: 'Tetapkan dulu ambang resminya &mdash; indikator ini belum punya target, sehingga capaian baseline (&plusmn;57% remaja mendukung kesetaraan gender) belum bisa dinilai. Setelah itu, sasar AP dengan skor terendah.',
+  aksi: 'Tetapkan dulu ambang resminya &mdash; indikator ini belum punya target, sehingga baseline (&plusmn;57% remaja mendukung kesetaraan gender) belum bisa dinilai posisinya. Setelah itu, sasar AP dengan skor terendah.',
   pendekatan: 'Gunakan pendekatan P2 (rata-rata beberapa AP terbaik) dan P4 (distribusi antar-AP) untuk menetapkan ambang, konsisten dengan kerangka threshold yang dipakai indikator lain; lanjutkan dialog gender pada kelompok remaja sebagai intervensi utama.',
   alasan: 'Tanpa ambang, kemajuan tidak bisa dievaluasi dan alokasi sumber daya tidak punya dasar. Metode P2/P4 dipilih karena tidak ada referensi resmi (P1) maupun data historis (P3) untuk indikator ini.'
  },
  'IND157': {
   aksi: 'Naikkan dari 52,6% menuju ambang 70% dengan fokus pada Timor Tengah Selatan (23,4%) dan Manggarai Timur (33,2%) yang tertinggal jauh; dua AP (Manggarai 80,3%, Nagekeo Ngada 67,8%) sudah di atas atau mendekati ambang.',
   pendekatan: 'Perluas mekanisme partisipasi anak/remaja dalam pengambilan keputusan: forum anak, keterlibatan di musyawarah desa, dan umpan balik program &mdash; replikasi model partisipasi yang berjalan di Manggarai.',
-  alasan: 'Keberadaan AP yang sudah melampaui ambang membuktikan target bisa dicapai dengan mekanisme partisipasi yang aktif; menyalin model internal lebih cepat dan murah daripada merancang dari nol.'
+  alasan: 'Keberadaan AP yang sudah di atas ambang menunjukkan angka tersebut memang terjadi di lapangan dengan mekanisme partisipasi yang aktif; menyalin model internal lebih cepat dan murah daripada merancang dari nol.'
  },
  'IND167': {
   aksi: 'Tetapkan ambang untuk indikator ini (belum ada target resmi; baseline nasional &plusmn;32%), lalu dalami mengapa skor "Hope rooted in Love" bervariasi antar-AP sebelum menskalakan intervensi.',
@@ -277,38 +277,40 @@ function statusOf(st, meta) {
   if (st.weighted==null) return {cls:'mon', txt:'Tidak ada data di bawah filter ini'};
   if (st.thr==null) return {cls:'mon', txt:'Monitoring — ambang belum ditetapkan'};
   const metNat = meta.dirn==='down' ? st.weighted<st.thr : st.weighted>st.thr;
-  if (!metNat) return {cls:'attn', txt:'Belum capai ambang '+meta.target+' — gap '+
+  if (!metNat) return {cls:'attn', txt:'Baseline di luar ambang '+meta.target+' — selisih '+
     (Math.abs(st.weighted-st.thr)*100).toFixed(1).replace('.',',')+' poin'};
-  if (st.apsFail>0) return {cls:'attn', txt:'Tercapai nasional, tetapi '+st.apsFail+' AP di sisi salah ambang'};
-  return {cls:'ok', txt:'Ambang '+meta.target+' tercapai di semua AP berdata'};
+  if (st.apsFail>0) return {cls:'attn', txt:'Baseline nasional dalam ambang, '+st.apsFail+' AP di luar ambang'};
+  return {cls:'ok', txt:'Baseline dalam ambang '+meta.target+' di semua AP berdata'};
 }
 
 function renderSummary(f) {
-  const groups = {attn:[], ok:[], mon:[]};
+  const groups = {attn:[], ok:[], mon:[], frs:[]};
+  const isFRS = k => DATA.meta[k].jenis.includes('FRS') && !DATA.meta[k].jenis.includes('OC 3');
   DATA.order.forEach(k => {
     const meta = DATA.meta[k];
     const st = stats(aggregate(k, f), meta);
     const s = statusOf(st, meta);
-    groups[s.cls].push({k, meta, st, s});
+    groups[isFRS(k) ? 'frs' : s.cls].push({k, meta, st, s});
   });
-  const labels = {attn:'&#9888; Perlu Perhatian &amp; Tindak Lanjut', ok:'&#10003; On Track / Tercapai', mon:'&#9679; Monitoring (ambang belum ditetapkan)'};
-  const lblCls = {attn:'sg-attn', ok:'sg-ok', mon:'sg-mon'};
+  const labels = {attn:'&#9888; Perlu Perhatian &amp; Tindak Lanjut', ok:'&#10003; Baseline Dalam Ambang', mon:'&#9679; Monitoring (ambang belum ditetapkan)', frs:'FRS (Non-Prioritas)'};
+  const lblCls = {attn:'sg-attn', ok:'sg-ok', mon:'sg-mon', frs:'sg-mon'};
   let html = '';
-  for (const g of ['attn','ok','mon']) {
+  for (const g of ['attn','ok','mon','frs']) {
     if (!groups[g].length) continue;
     html += `<div class="sum-group-label ${lblCls[g]}">${labels[g]} (${groups[g].length})</div><div class="sum-grid">`;
     for (const {k, meta, st, s} of groups[g]) {
+      const cls = g==='frs' ? s.cls : g;
       const active = k===f.ind ? ' active' : '';
       const barW = st.weighted==null ? 0 : Math.min(100, st.weighted*100);
-      const barColor = g==='attn' ? '#B3261E' : (g==='ok' ? '#3B6D11' : '#1B4F82');
+      const barColor = cls==='attn' ? '#B3261E' : (cls==='ok' ? '#3B6D11' : '#1B4F82');
       const thrMark = st.thr!=null ? `<s style="left:${st.thr*100}%"></s>` : '';
-      html += `<div class="sum-card ${g}${active}" data-ind="${k}">
+      html += `<div class="sum-card ${cls}${active}" data-ind="${k}">
         <div class="sum-name">${shortName(k)}</div>
         <div class="sum-val-row"><div class="sum-val" style="color:${barColor}">${st.weighted==null?'—':fmtPct(st.weighted)}</div>
         <div class="sum-tgt">ambang: ${meta.target}</div></div>
         <div class="sum-bar"><i style="width:${barW}%;background:${barColor}"></i>${thrMark}</div>
-        <div class="sum-status st-${g}">${s.txt}</div>
-        <div class="sum-hint">n=${fmtInt(st.totDen)} &middot; ${st.apsWith} AP berdata &middot; klik untuk detail</div>
+        <div class="sum-status st-${cls}">${s.txt}</div>
+        <div class="sum-hint">n=${fmtInt(st.totDen)} &middot; ${st.apsWith} AP berdata</div>
       </div>`;
     }
     html += '</div>';
@@ -356,7 +358,7 @@ function render() {
   drawTable(perAp, meta);
 
   const rk = REKOM[f.ind];
-  $('rekom-sub').innerHTML = shortName(f.ind) + ' &mdash; disusun dari capaian vs ambang, sebaran antar-AP, dan analisis threshold P1&ndash;P4 (angka acuan: kondisi tanpa filter)';
+  $('rekom-sub').innerHTML = shortName(f.ind);
   $('rk-aksi').innerHTML = rk.aksi;
   $('rk-pendekatan').innerHTML = rk.pendekatan;
   $('rk-alasan').innerHTML = rk.alasan;
