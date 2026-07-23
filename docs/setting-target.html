@@ -79,10 +79,16 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
 .target-out.warn .k { color:var(--amber); } .target-out.mon .k { color:var(--blue); }
 .target-out .v { font-size:22px; font-weight:700; color:var(--navy); }
 .target-out .thr { font-size:11.5px; color:var(--ink-2); margin-top:2px; }
+.kompilasi { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; background:var(--gray-bg); border-radius:var(--r-sm); padding:9px 12px; }
+.kfield { display:flex; flex-direction:column; gap:3px; }
+.kfield label { font-size:9.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-3); }
+.kfield input { width:96px; padding:6px 8px; font-size:13px; font-weight:700; border:1.5px solid var(--line); border-radius:var(--r-sm); font-family:inherit; }
 .years { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
 .yr { flex:1 1 60px; background:var(--bg); border-radius:8px; padding:8px 6px; text-align:center; }
 .yr .fy { font-size:9.5px; font-weight:700; color:var(--ink-3); }
 .yr .yv { font-size:13px; font-weight:700; color:var(--navy); margin-top:2px; }
+.yr .nd { font-size:9.5px; color:var(--ink-2); margin-top:3px; line-height:1.35; }
+.yr .nd b { color:var(--navy); }
 .note-in { width:100%; margin-top:10px; padding:8px 10px; font-size:12px; border:1.5px solid var(--line); border-radius:var(--r-sm); font-family:inherit; resize:vertical; min-height:34px; }
 /* outputs */
 .otbl { width:100%; border-collapse:collapse; font-size:12.5px; }
@@ -127,7 +133,7 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
   <h1>Setting Target Outcome 3 &mdash; per Area Program</h1>
   <p>Setiap AP menetapkan target indikator Outcome 3 (dan output) berdasarkan baseline AIM+ FY26 dan threshold. Formulasi mengikuti lembar Kompilasi target-setting. Isian tersimpan otomatis di browser (per AP).</p>
   <div class="formula">
-    <b>Formula:</b> Target = Baseline AIM+ 2026 &plusmn; kenaikan/penurunan yang ditetapkan AP (dipandu rentang perubahan). Keputusan: jika baseline sudah memenuhi threshold &rarr; <b>Monitor</b>; jika belum &rarr; <b>Set target</b>. Target dipecah per tahun fiskal hingga akhir durasi pendampingan.
+    <b>Formula:</b> Target = Baseline AIM+ 2026 &plusmn; kenaikan/penurunan yang ditetapkan AP (dipandu rentang perubahan). Keputusan: jika baseline sudah memenuhi threshold &rarr; <b>Monitor</b>; jika belum &rarr; <b>Set target</b>. Isi <b>Durasi (FY)</b> dan <b>N populasi</b> per indikator &mdash; sistem memecah target per tahun fiskal berikut <b>Numerator</b> &amp; <b>Denominator</b> (Denom per FY = N populasi &divide; durasi; Num = Denom &times; target% FY), sesuai lembar Kompilasi.
   </div>
 </div></header>
 <div class="wrap">
@@ -140,7 +146,7 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
   <section style="padding-top:6px">
     <div class="sec-eyebrow">Stage 1&ndash;4 &middot; Indikator Outcome (Outcome level)</div>
     <h2 class="sec-title" id="ap-title">&nbsp;</h2>
-    <p class="stage-note">Baseline &amp; threshold otomatis; tetapkan besar perubahan pada slider/angka &mdash; target &amp; sebaran per tahun terhitung langsung.</p>
+    <p class="stage-note">Baseline &amp; threshold otomatis; tetapkan besar perubahan pada slider/angka, lalu isi <b>Durasi (FY)</b> dan <b>N populasi</b> &mdash; target, Numerator &amp; Denominator per tahun terhitung langsung.</p>
     <div class="tgrid" id="outcome-cards" style="margin-top:12px"></div>
   </section>
 
@@ -213,21 +219,26 @@ function render(ap){
     const dirWord = cfg.dir==='up'?'kenaikan':'penurunan';
     const rangeTxt = `${Math.round(cfg.rlo*100)}%${cfg.rlo!==cfg.rhi?'–'+Math.round(cfg.rhi*100)+'%':''}`;
     const gap = (base==null)?null:(cfg.dir==='up'?cfg.thr-base:base-cfg.thr);
+    const durasi = saved.durasi!=null ? saved.durasi : cfg.durasi;
+    const npop = saved.npop!=null ? saved.npop : '';
     return `<div class="tcard" data-ind="${k}" style="border-left-color:${monitor?'var(--blue)':'var(--amber)'}">
       <div class="code">${cfg.oios} &middot; ${cfg.dir==='up'?'▲ naik lebih baik':'▼ turun lebih baik'}</div>
       <h3>${cfg.name}</h3>
       <span class="dec ${monitor?'dec-mon':'dec-set'}">${monitor?'Monitor Indicator (sudah memenuhi threshold)':'Set Target'}</span>
-      <div class="trow">
+      <div class="trow" style="grid-template-columns:repeat(3,1fr)">
         <div><div class="lbl">Baseline FY26</div><div class="val" style="color:var(--navy)">${base==null?'—':fmtPct(base)}</div></div>
         <div><div class="lbl">Threshold</div><div class="val" style="color:var(--blue)">${fmtPct(cfg.thr)}</div></div>
         <div><div class="lbl">Gap</div><div class="val" style="color:${gap==null?'var(--gray)':(gap<=0?'var(--green)':'var(--amber)')}">${gap==null?'—':(gap<=0?'✓':(gap*100).toFixed(1).replace('.',',')+'pp')}</div></div>
-        <div><div class="lbl">Durasi</div><div class="val">${cfg.durasi} FY</div></div>
       </div>
       <div class="rangehint">Saran ${dirWord}: <b>${rangeTxt}</b> (dari tren evaluasi TP-CESP &amp; gap threshold)</div>
       <div class="input-row">
         <label>Target ${dirWord} (pp)</label>
         <input type="range" min="0" max="${cfg.dir==='up'?Math.round((1-(base||0))*100):Math.round((base||0)*100)}" step="0.5" value="${change}" data-slider="${k}">
         <input type="number" min="0" step="0.5" value="${change}" data-num="${k}">
+      </div>
+      <div class="kompilasi">
+        <div class="kfield"><label>Durasi (FY)</label><input type="number" min="1" max="5" step="1" value="${durasi}" data-durasi="${k}"></div>
+        <div class="kfield"><label>N populasi</label><input type="number" min="0" step="1" value="${npop}" placeholder="mis. 2000" data-npop="${k}"></div>
       </div>
       <div id="out-${k}"></div>
       <textarea class="note-in" data-note="${k}" placeholder="Catatan indikator (opsional)">${saved.note||''}</textarea>
@@ -239,6 +250,8 @@ function render(ap){
   document.querySelectorAll('[data-slider]').forEach(el=>el.addEventListener('input',e=>syncChange(ap,el.dataset.slider,+e.target.value,'num')));
   document.querySelectorAll('[data-num]').forEach(el=>el.addEventListener('input',e=>syncChange(ap,el.dataset.num,+e.target.value,'slider')));
   document.querySelectorAll('[data-note]').forEach(el=>el.addEventListener('input',e=>{ apState(ap)[el.dataset.note]=Object.assign(apState(ap)[el.dataset.note]||{},{note:e.target.value}); save(); }));
+  document.querySelectorAll('[data-durasi]').forEach(el=>el.addEventListener('input',e=>{ const k=el.dataset.durasi; const v=e.target.value===''?null:Math.max(1,+e.target.value); apState(ap)[k]=Object.assign(apState(ap)[k]||{},{durasi:v}); renderTarget(ap,k); renderSummary(ap); save(); }));
+  document.querySelectorAll('[data-npop]').forEach(el=>el.addEventListener('input',e=>{ const k=el.dataset.npop; apState(ap)[k]=Object.assign(apState(ap)[k]||{},{npop:e.target.value}); renderTarget(ap,k); renderSummary(ap); save(); }));
 
   renderOutputs(ap);
   renderSummary(ap);
@@ -257,22 +270,32 @@ function renderTarget(ap,k){
   const cfg=TD.cfg[k]; const base=(TD.baseline[ap]||{})[k];
   const st=apState(ap); const monitor=meets(base,cfg.thr,cfg.dir);
   const change = (st[k]&&st[k].change!=null)?st[k].change:(monitor?0:defaultChange(cfg));
+  const durasi = (st[k]&&st[k].durasi!=null)?st[k].durasi:cfg.durasi;
+  const npop = (st[k]&&st[k].npop!=null&&st[k].npop!=='')?+st[k].npop:null;
   const target = calcTarget(base,change,cfg.dir);
   const reaches = target!=null && (cfg.dir==='up'?target>=cfg.thr:target<=cfg.thr);
   const cls = monitor?'mon':(reaches?'':'warn');
   // year breakdown: linear baseline->target over durasi (FY26..)
+  // Numerator/Denominator per FY (Kompilasi): denom = N populasi menuju FY tsb; num = denom × target% FY
   let years='';
-  if(base!=null){
-    for(let y=0;y<=cfg.durasi;y++){
-      const v = base + (target-base)*y/cfg.durasi;
-      years += `<div class="yr"><div class="fy">FY${(TD.startFY+y)%100}</div><div class="yv">${fmtPct(v)}</div></div>`;
+  if(base!=null && durasi>=1){
+    for(let y=0;y<=durasi;y++){
+      const v = base + (target-base)*y/durasi;
+      let nd='';
+      if(npop!=null){
+        const denom = Math.round(npop*y/durasi);
+        const num = Math.round(denom*v);
+        nd = `<div class="nd">N: <b>${num.toLocaleString('id-ID')}</b><br>D: ${denom.toLocaleString('id-ID')}</div>`;
+      }
+      years += `<div class="yr"><div class="fy">FY${(TD.startFY+y)%100}</div><div class="yv">${fmtPct(v)}</div>${nd}</div>`;
     }
   }
   $('out-'+k).innerHTML = `<div class="target-out ${cls}">
-    <div class="k">Target LOP (FY${(TD.startFY+cfg.durasi)%100})</div>
+    <div class="k">Target LOP (FY${(TD.startFY+durasi)%100})</div>
     <div class="v">${target==null?'—':fmtPct(target)}</div>
     <div class="thr">${base==null?'Baseline tidak terukur di AP ini.':(monitor?'Sudah memenuhi threshold — fokus mempertahankan.':(reaches?'✓ Mencapai/melewati threshold '+fmtPct(cfg.thr):'Belum mencapai threshold '+fmtPct(cfg.thr)+' — pertimbangkan perubahan lebih besar.'))}</div>
     ${base!=null?`<div class="years">${years}</div>`:''}
+    ${(base!=null&&npop!=null)?'<div class="thr" style="margin-top:6px">N = Numerator (populasi memenuhi indikator), D = Denominator (populasi terukur kumulatif). Denom per FY = N populasi ÷ durasi.</div>':''}
   </div>`;
 }
 
@@ -294,6 +317,8 @@ function renderSummary(ap){
   let rows = TD.indOrder.map(k=>{
     const cfg=TD.cfg[k]; const base=(TD.baseline[ap]||{})[k]; const monitor=meets(base,cfg.thr,cfg.dir);
     const change=(st[k]&&st[k].change!=null)?st[k].change:(monitor?0:defaultChange(cfg));
+    const durasi=(st[k]&&st[k].durasi!=null)?st[k].durasi:cfg.durasi;
+    const npop=(st[k]&&st[k].npop!=null&&st[k].npop!=='')?+st[k].npop:null;
     const target=calcTarget(base,change,cfg.dir);
     const reaches=target!=null&&(cfg.dir==='up'?target>=cfg.thr:target<=cfg.thr);
     const pill = monitor?'<span class="pill pill-mon">Monitor</span>':(reaches?'<span class="pill pill-ok">Capai threshold</span>':'<span class="pill pill-no">Di bawah threshold</span>');
@@ -301,9 +326,11 @@ function renderSummary(ap){
       <td class="num">${base==null?'—':fmtPct(base)}</td><td class="num">${fmtPct(cfg.thr)}</td>
       <td class="num">${cfg.dir==='up'?'+':'−'}${change}pp</td>
       <td class="num" style="font-weight:700;color:var(--navy)">${target==null?'—':fmtPct(target)}</td>
+      <td class="num">${durasi} FY</td>
+      <td class="num">${npop==null?'—':npop.toLocaleString('id-ID')}</td>
       <td>${pill}</td></tr>`;
   }).join('');
-  $('summary-table').innerHTML = `<thead><tr><th>Indikator Outcome</th><th class="num">Baseline</th><th class="num">Threshold</th><th class="num">Perubahan</th><th class="num">Target LOP</th><th>Status</th></tr></thead><tbody>${rows}</tbody>`;
+  $('summary-table').innerHTML = `<thead><tr><th>Indikator Outcome</th><th class="num">Baseline</th><th class="num">Threshold</th><th class="num">Perubahan</th><th class="num">Target LOP</th><th class="num">Durasi</th><th class="num">N populasi</th><th>Status</th></tr></thead><tbody>${rows}</tbody>`;
 }
 
 $('ap-notes').addEventListener('input',e=>{ apState($('ap').value).notes=e.target.value; save(); });
