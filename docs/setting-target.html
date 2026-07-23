@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setting Target Outcome 3 — WVI Threshold Analysis</title>
+<style>
+:root {
+  --navy:#0B1F3F; --navy-2:#14315C; --orange:#E86100;
+  --ink:#1A2733; --ink-2:#44546A; --ink-3:#7A8699;
+  --bg:#F5F7FA; --surface:#FFFFFF; --line:#E4E9F0;
+  --blue:#1B4F82; --blue-bg:#EAF2FA;
+  --green:#1E7D45; --green-bg:#E8F5EE;
+  --amber:#996A00; --amber-bg:#FCF3DE;
+  --red:#B3261E; --red-bg:#FBEDEC;
+  --gray:#5C6670; --gray-bg:#EEF1F5;
+  --r-lg:14px; --r-md:11px; --r-sm:8px;
+  --shadow:0 1px 2px rgba(16,34,60,.05), 0 3px 10px rgba(16,34,60,.06);
+  --shadow-lift:0 4px 10px rgba(16,34,60,.10), 0 12px 30px rgba(16,34,60,.13);
+  --font:'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; font-family:var(--font); background:var(--bg); color:var(--ink); line-height:1.5; }
+.wrap { max-width:1280px; margin:0 auto; padding:0 26px; }
+h1,h2,h3 { line-height:1.25; margin:0; }
+section { padding:38px 0 6px; scroll-margin-top:62px; }
+.sec-eyebrow { font-size:11.5px; font-weight:700; letter-spacing:1.1px; text-transform:uppercase; color:var(--orange); margin-bottom:6px; }
+.sec-title { font-size:23px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.sec-lead { font-size:14px; color:var(--ink-2); max-width:760px; margin:0 0 20px; }
+.card { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:20px 22px; }
+@keyframes rise { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:none;} }
+.rise { animation:rise .35s ease both; }
+@media (prefers-reduced-motion:reduce){ .rise{animation:none;} html{scroll-behavior:auto;} }
+/* ---- global nav ---- */
+.nav { position:sticky; top:0; z-index:60; background:rgba(11,31,63,.97); backdrop-filter:blur(6px); box-shadow:0 1px 0 rgba(255,255,255,.06); }
+.nav-in { max-width:1280px; margin:0 auto; padding:0 26px; display:flex; align-items:center; gap:4px; height:52px; overflow-x:auto; }
+.nav-brand { color:#fff; font-weight:700; font-size:13px; margin-right:12px; white-space:nowrap; display:flex; align-items:center; gap:8px; text-decoration:none; }
+.nav-brand .dot { width:8px; height:8px; border-radius:50%; background:var(--orange); }
+.nav a.lnk { color:#C9D8EE; text-decoration:none; font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:8px; white-space:nowrap; }
+.nav a.lnk:hover { background:rgba(255,255,255,.10); color:#fff; }
+.nav a.lnk.active { background:rgba(255,255,255,.16); color:#fff; }
+.nav a.back { margin-left:auto; color:#FFC79E; text-decoration:none; font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:8px; white-space:nowrap; }
+.nav a.back:hover { background:rgba(232,97,0,.25); }
+/* ---- badges & chips ---- */
+.badge { font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; }
+.footer { text-align:center; font-size:11.5px; color:var(--ink-3); padding:30px 20px 24px; }
+.footer a { color:var(--blue); }
+.btn { display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:14px; border-radius:10px; padding:12px 22px; text-decoration:none; cursor:pointer; border:none; font-family:inherit; }
+.btn-primary { background:var(--orange); color:#fff; } .btn-primary:hover { background:#C75300; }
+.btn-ghost { background:rgba(255,255,255,.10); color:#fff; border:1px solid rgba(255,255,255,.25); } .btn-ghost:hover { background:rgba(255,255,255,.18); }
+
+.thead { background:linear-gradient(135deg,var(--navy),var(--navy-2)); color:#fff; padding:26px 0 22px; }
+.thead h1 { font-size:24px; } .thead p { margin:6px 0 0; color:#C9D8EE; font-size:13px; max-width:840px; }
+.formula { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); border-radius:10px; padding:11px 15px; margin-top:14px; font-size:12.5px; color:#E8F0FA; }
+.formula b { color:#FFD9BC; }
+.pickrow { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:16px 0 4px; position:sticky; top:52px; z-index:30; background:var(--bg); padding:10px 0; }
+.pickrow label { font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-3); }
+.pickrow select { padding:9px 12px; font-size:14px; border:1.5px solid var(--line); border-radius:var(--r-sm); background:#fff; color:var(--ink); font-family:inherit; min-width:220px; font-weight:700; }
+.stage-note { font-size:11.5px; color:var(--ink-3); }
+.tgrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(400px,1fr)); gap:16px; }
+@media (max-width:460px){ .tgrid{grid-template-columns:1fr;} }
+.tcard { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:18px 20px 16px; display:flex; flex-direction:column; border-left:5px solid var(--line); }
+.tcard .code { font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-3); }
+.tcard h3 { font-size:14px; color:var(--navy); margin:3px 0 2px; line-height:1.3; }
+.dec { font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 10px; display:inline-block; margin-top:6px; }
+.dec-set { background:var(--amber-bg); color:var(--amber); } .dec-mon { background:var(--blue-bg); color:var(--blue); }
+.trow { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:14px 0 6px; }
+.trow .lbl { font-size:9.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-3); }
+.trow .val { font-size:18px; font-weight:700; margin-top:1px; }
+.rangehint { font-size:11.5px; color:var(--ink-2); background:var(--gray-bg); border-radius:var(--r-sm); padding:7px 11px; margin:2px 0 10px; }
+.input-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:4px; }
+.input-row label { font-size:11px; font-weight:700; color:var(--ink-2); }
+.input-row input[type=number] { width:78px; padding:7px 9px; font-size:14px; font-weight:700; border:1.5px solid var(--line); border-radius:var(--r-sm); font-family:inherit; }
+.input-row input[type=range] { flex:1; min-width:120px; accent-color:var(--blue); }
+.target-out { margin-top:12px; background:#F1F6EC; border-radius:var(--r-md); padding:12px 14px; }
+.target-out.warn { background:var(--amber-bg); } .target-out.mon { background:var(--blue-bg); }
+.target-out .k { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--green); }
+.target-out.warn .k { color:var(--amber); } .target-out.mon .k { color:var(--blue); }
+.target-out .v { font-size:22px; font-weight:700; color:var(--navy); }
+.target-out .thr { font-size:11.5px; color:var(--ink-2); margin-top:2px; }
+.years { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+.yr { flex:1 1 60px; background:var(--bg); border-radius:8px; padding:8px 6px; text-align:center; }
+.yr .fy { font-size:9.5px; font-weight:700; color:var(--ink-3); }
+.yr .yv { font-size:13px; font-weight:700; color:var(--navy); margin-top:2px; }
+.note-in { width:100%; margin-top:10px; padding:8px 10px; font-size:12px; border:1.5px solid var(--line); border-radius:var(--r-sm); font-family:inherit; resize:vertical; min-height:34px; }
+/* outputs */
+.otbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.otbl th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-3); padding:9px 8px; border-bottom:2px solid var(--line); }
+.otbl td { padding:8px; border-bottom:1px solid var(--gray-bg); vertical-align:middle; }
+.otbl input { padding:6px 8px; font-size:12.5px; border:1.5px solid var(--line); border-radius:6px; font-family:inherit; }
+.otbl input.v { width:90px; } .otbl input.n { width:100%; }
+.otbl .code { font-size:10px; font-weight:700; color:var(--blue); }
+/* summary */
+.sumcard { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:6px 12px 12px; overflow-x:auto; }
+.stbl { width:100%; border-collapse:collapse; font-size:12.5px; }
+.stbl th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-3); padding:9px 8px; border-bottom:2px solid var(--line); }
+.stbl td { padding:8px; border-bottom:1px solid var(--gray-bg); }
+.stbl .num { text-align:right; font-variant-numeric:tabular-nums; }
+.pill { font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; }
+.pill-ok { background:var(--green-bg); color:var(--green); } .pill-no { background:var(--amber-bg); color:var(--amber); } .pill-mon { background:var(--blue-bg); color:var(--blue); }
+.toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.btn-sm { font-size:12px; font-weight:700; border-radius:8px; padding:8px 14px; cursor:pointer; font-family:inherit; border:none; }
+.btn-b { background:var(--blue-bg); color:var(--blue); } .btn-g { background:var(--gray-bg); color:var(--gray); }
+.notesbox { width:100%; margin-top:8px; padding:11px 13px; font-size:13px; border:1.5px solid var(--line); border-radius:var(--r-md); font-family:inherit; resize:vertical; min-height:80px; }
+.saved-tag { font-size:11px; color:var(--green); font-weight:700; }
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Navigasi utama">
+  <div class="nav-in">
+    <a class="nav-brand" href="index.html"><span class="dot"></span>Threshold Analysis</a>
+    <a class="lnk" href="index.html">&#127968; Home</a>
+    <a class="lnk" href="threshold-dashboard.html">&#128202; Dashboard</a>
+    <a class="lnk" href="opsi-threshold-per-indikator.html">&#128203; Opsi Threshold</a>
+    <a class="lnk" href="evidence.html">&#128218; Evidence</a>
+    <a class="lnk" href="cesp-trend.html">&#128200; Trend TP CESP</a>
+    <a class="lnk active" href="setting-target.html">&#127919; Setting Target</a>
+    <a class="lnk" href="methodology.html">&#128214; Metodologi</a>
+    <a class="lnk" href="references.html">&#128196; Referensi</a>
+    <a class="back" href="threshold-dashboard.html">&larr; Ke Dashboard</a>
+  </div>
+</nav>
+
+<header class="thead"><div class="wrap">
+  <h1>Setting Target Outcome 3 &mdash; per Area Program</h1>
+  <p>Setiap AP menetapkan target indikator Outcome 3 (dan output) berdasarkan baseline AIM+ FY26 dan threshold. Formulasi mengikuti lembar Kompilasi target-setting. Isian tersimpan otomatis di browser (per AP).</p>
+  <div class="formula">
+    <b>Formula:</b> Target = Baseline AIM+ 2026 &plusmn; kenaikan/penurunan yang ditetapkan AP (dipandu rentang perubahan). Keputusan: jika baseline sudah memenuhi threshold &rarr; <b>Monitor</b>; jika belum &rarr; <b>Set target</b>. Target dipecah per tahun fiskal hingga akhir durasi pendampingan.
+  </div>
+</div></header>
+<div class="wrap">
+  <div class="pickrow">
+    <label for="ap">Area Program</label>
+    <select id="ap"></select>
+    <span class="saved-tag" id="saved"></span>
+  </div>
+
+  <section style="padding-top:6px">
+    <div class="sec-eyebrow">Stage 1&ndash;4 &middot; Indikator Outcome (Outcome level)</div>
+    <h2 class="sec-title" id="ap-title">&nbsp;</h2>
+    <p class="stage-note">Baseline &amp; threshold otomatis; tetapkan besar perubahan pada slider/angka &mdash; target &amp; sebaran per tahun terhitung langsung.</p>
+    <div class="tgrid" id="outcome-cards" style="margin-top:12px"></div>
+  </section>
+
+  <section>
+    <div class="sec-eyebrow">Indikator Output (Log Frame 3.1&ndash;3.3)</div>
+    <h2 class="sec-title">Target Output</h2>
+    <p class="stage-note">Output belum punya baseline/threshold di data ini &mdash; isi target LOP dan catatan secara manual.</p>
+    <div class="sumcard" style="margin-top:12px"><table class="otbl" id="output-table"></table></div>
+  </section>
+
+  <section style="padding-bottom:34px">
+    <div class="sec-eyebrow">Ringkasan &amp; Catatan</div>
+    <h2 class="sec-title" id="sum-title">Ringkasan Target &mdash; AP terpilih</h2>
+    <div class="sumcard"><table class="stbl" id="summary-table"></table></div>
+    <label style="display:block;margin-top:16px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-3)">Catatan AP (asumsi, kesepakatan, tindak lanjut)</label>
+    <textarea class="notesbox" id="ap-notes" placeholder="Tulis catatan target-setting untuk AP ini…"></textarea>
+    <div class="toolbar">
+      <button class="btn-sm btn-b" id="btn-reset-ap">&#8635; Reset target AP ini</button>
+      <span class="stage-note" id="save-info" style="align-self:center"></span>
+    </div>
+  </section>
+</div>
+
+<div class="footer">World Vision Indonesia &middot; AIM/AIM+ FY26 &middot; seluruh nilai threshold berlabel &ldquo;usulan untuk didiskusikan&rdquo; &middot; sumber: Analisis_4_Pendekatan_Threshold_OC3_FINAL.xlsx + unit record KOBO</div>
+
+<script>
+'use strict';
+const TD = {"aps":["Bengkayang","Kubu Raya","Landak","Manggarai Timur","Manggarai","Nagekeo Ngada","Nias Selatan","Simokerto","TTS"],"indOrder":["IND6","IND7","IND10","IND22","IND27"],"cfg":{"IND6":{"oios":"OIOS 6","name":"Relasi positif & damai dengan orang tua/pengasuh (12-18)","dir":"up","thr":0.842650103519669,"rlo":0.14,"rhi":0.22,"durasi":3},"IND7":{"oios":"OIOS 7","name":"Relasi positif & damai dengan teman sebaya (12-18)","dir":"up","thr":0.772256728778468,"rlo":0.11,"rhi":0.27,"durasi":3},"IND10":{"oios":"OIOS 10","name":"Self-efficacy tinggi (remaja perempuan & laki-laki)","dir":"up","thr":0.340425531914894,"rlo":0.18,"rhi":0.18,"durasi":2},"IND22":{"oios":"OIOS 22","name":"Mengalami kekerasan fisik/agresi psikologis (12 bln)","dir":"down","thr":0.1,"rlo":0.1,"rhi":0.26,"durasi":2},"IND27":{"oios":"OIOS 27","name":"Remaja yang sudah menikah","dir":"down","thr":0.1,"rlo":0.0,"rhi":0.1,"durasi":2}},"baseline":{"Bengkayang":{"IND6":0.3767361111111111,"IND7":0.30139372822299654,"IND10":0.15817223198594024,"IND22":0.11149825783972125,"IND27":0.0},"Kubu Raya":{"IND6":0.3645418326693227,"IND7":0.3153692614770459,"IND10":0.08870967741935484,"IND22":0.1217564870259481,"IND27":0.0},"Landak":{"IND6":0.3051224944320713,"IND7":0.19239373601789708,"IND10":0.10538116591928251,"IND22":0.22371364653243847,"IND27":0.004576659038901602},"Manggarai Timur":{"IND6":0.5088062622309197,"IND7":0.2172211350293542,"IND10":0.1761252446183953,"IND22":0.12524461839530332,"IND27":null},"Manggarai":{"IND6":0.6526104417670683,"IND7":0.22044088176352705,"IND10":0.1342685370741483,"IND22":0.12625250501002003,"IND27":null},"Nagekeo Ngada":{"IND6":0.8426501035196687,"IND7":0.772256728778468,"IND10":0.2665289256198347,"IND22":0.07246376811594203,"IND27":null},"Nias Selatan":{"IND6":0.6274131274131274,"IND7":0.2644787644787645,"IND10":0.07528957528957529,"IND22":0.0945945945945946,"IND27":null},"Simokerto":{"IND6":0.5605095541401274,"IND7":0.4585987261146497,"IND10":0.3404255319148936,"IND22":0.15236051502145923,"IND27":0.0},"TTS":{"IND6":0.4932301740812379,"IND7":0.3655705996131528,"IND10":0.2205029013539652,"IND22":0.32495164410058025,"IND27":null}},"outputs":[{"code":"3.1","name":"L2 C2B.027871 — Proporsi anak/remaja ... (aktif dalam kelompok)","unit":"%"},{"code":"3.1","name":"OIOS 156 — Proporsi anggota anak laki/perempuan yang aktif","unit":"%"},{"code":"3.2","name":"L2 C2A.027740 — Jumlah anak yang orang tuanya ... ","unit":"#"},{"code":"3.2","name":"C3A.23089 — Jumlah peserta Celebrating Families","unit":"#"},{"code":"3.2","name":"OIOS 108 — Jumlah faith leaders dalam programming","unit":"#"},{"code":"3.3","name":"OIOS 113 — Proporsi mekanisme pelaporan & rujukan CP","unit":"%"}],"startFY":2026};
+const $ = id => document.getElementById(id);
+const fmtPct = (v,d=1) => v==null ? '—' : (v*100).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})+'%';
+const KEY = 'wviTargets';
+
+/* ---- persisted state: { ap: { IND: {change, note}, outputs:{i:{val,note}}, notes } } ---- */
+let store = {};
+try { store = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); $('save-info').textContent='Tersimpan otomatis '+new Date().toLocaleTimeString('id-ID'); } catch(e){} }
+function apState(ap){ store[ap] = store[ap] || {outputs:{}, notes:''}; store[ap].outputs = store[ap].outputs||{}; return store[ap]; }
+
+/* decision + default change per indicator for an AP */
+const EPS=1e-6;  // tolerance so a best-performer AP meets its own (rounded) threshold
+function meets(base, thr, dir){ if(base==null) return false; return dir==='up' ? base>=thr-EPS : base<=thr+EPS; }
+function defaultChange(cfg){ return Math.round((cfg.rlo+cfg.rhi)/2*1000)/10; }  // midpoint, pp (1 decimal)
+/* target from baseline + signed change (pp). up: add; down: subtract */
+function calcTarget(base, changePP, dir){
+  if(base==null) return null;
+  const c = changePP/100;
+  let t = dir==='up' ? base + c : base - c;
+  return Math.max(0, Math.min(1, t));
+}
+
+function bindAp(){
+  const sel=$('ap');
+  TD.aps.forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
+  sel.addEventListener('change', ()=>render(sel.value));
+  render(TD.aps[0]);
+}
+
+function render(ap){
+  $('ap-title').textContent = 'Outcome — '+ap;
+  $('sum-title').textContent = 'Ringkasan Target — '+ap;
+  const st = apState(ap);
+  $('ap-notes').value = st.notes||'';
+
+  /* ---- outcome indicator cards ---- */
+  $('outcome-cards').innerHTML = TD.indOrder.map(k=>{
+    const cfg=TD.cfg[k]; const base=(TD.baseline[ap]||{})[k];
+    const monitor = meets(base,cfg.thr,cfg.dir);
+    const saved = st[k]||{};
+    const change = saved.change!=null ? saved.change : (monitor?0:defaultChange(cfg));
+    const dirWord = cfg.dir==='up'?'kenaikan':'penurunan';
+    const rangeTxt = `${Math.round(cfg.rlo*100)}%${cfg.rlo!==cfg.rhi?'–'+Math.round(cfg.rhi*100)+'%':''}`;
+    const gap = (base==null)?null:(cfg.dir==='up'?cfg.thr-base:base-cfg.thr);
+    return `<div class="tcard" data-ind="${k}" style="border-left-color:${monitor?'var(--blue)':'var(--amber)'}">
+      <div class="code">${cfg.oios} &middot; ${cfg.dir==='up'?'▲ naik lebih baik':'▼ turun lebih baik'}</div>
+      <h3>${cfg.name}</h3>
+      <span class="dec ${monitor?'dec-mon':'dec-set'}">${monitor?'Monitor Indicator (sudah memenuhi threshold)':'Set Target'}</span>
+      <div class="trow">
+        <div><div class="lbl">Baseline FY26</div><div class="val" style="color:var(--navy)">${base==null?'—':fmtPct(base)}</div></div>
+        <div><div class="lbl">Threshold</div><div class="val" style="color:var(--blue)">${fmtPct(cfg.thr)}</div></div>
+        <div><div class="lbl">Gap</div><div class="val" style="color:${gap==null?'var(--gray)':(gap<=0?'var(--green)':'var(--amber)')}">${gap==null?'—':(gap<=0?'✓':(gap*100).toFixed(1).replace('.',',')+'pp')}</div></div>
+        <div><div class="lbl">Durasi</div><div class="val">${cfg.durasi} FY</div></div>
+      </div>
+      <div class="rangehint">Saran ${dirWord}: <b>${rangeTxt}</b> (dari tren evaluasi TP-CESP &amp; gap threshold)</div>
+      <div class="input-row">
+        <label>Target ${dirWord} (pp)</label>
+        <input type="range" min="0" max="${cfg.dir==='up'?Math.round((1-(base||0))*100):Math.round((base||0)*100)}" step="0.5" value="${change}" data-slider="${k}">
+        <input type="number" min="0" step="0.5" value="${change}" data-num="${k}">
+      </div>
+      <div id="out-${k}"></div>
+      <textarea class="note-in" data-note="${k}" placeholder="Catatan indikator (opsional)">${saved.note||''}</textarea>
+    </div>`;
+  }).join('');
+
+  // wire inputs + initial target render
+  TD.indOrder.forEach(k=>{ renderTarget(ap,k); });
+  document.querySelectorAll('[data-slider]').forEach(el=>el.addEventListener('input',e=>syncChange(ap,el.dataset.slider,+e.target.value,'num')));
+  document.querySelectorAll('[data-num]').forEach(el=>el.addEventListener('input',e=>syncChange(ap,el.dataset.num,+e.target.value,'slider')));
+  document.querySelectorAll('[data-note]').forEach(el=>el.addEventListener('input',e=>{ apState(ap)[el.dataset.note]=Object.assign(apState(ap)[el.dataset.note]||{},{note:e.target.value}); save(); }));
+
+  renderOutputs(ap);
+  renderSummary(ap);
+  $('saved').textContent = Object.keys(st).some(k=>TD.indOrder.includes(k)) ? '• tersimpan' : '';
+}
+
+function syncChange(ap,k,val,other){
+  const st=apState(ap); st[k]=Object.assign(st[k]||{},{change:val});
+  // mirror to the other input
+  const sel = other==='slider' ? `[data-slider="${k}"]` : `[data-num="${k}"]`;
+  const el=document.querySelector(sel); if(el) el.value=val;
+  renderTarget(ap,k); renderSummary(ap); save();
+}
+
+function renderTarget(ap,k){
+  const cfg=TD.cfg[k]; const base=(TD.baseline[ap]||{})[k];
+  const st=apState(ap); const monitor=meets(base,cfg.thr,cfg.dir);
+  const change = (st[k]&&st[k].change!=null)?st[k].change:(monitor?0:defaultChange(cfg));
+  const target = calcTarget(base,change,cfg.dir);
+  const reaches = target!=null && (cfg.dir==='up'?target>=cfg.thr:target<=cfg.thr);
+  const cls = monitor?'mon':(reaches?'':'warn');
+  // year breakdown: linear baseline->target over durasi (FY26..)
+  let years='';
+  if(base!=null){
+    for(let y=0;y<=cfg.durasi;y++){
+      const v = base + (target-base)*y/cfg.durasi;
+      years += `<div class="yr"><div class="fy">FY${(TD.startFY+y)%100}</div><div class="yv">${fmtPct(v)}</div></div>`;
+    }
+  }
+  $('out-'+k).innerHTML = `<div class="target-out ${cls}">
+    <div class="k">Target LOP (FY${(TD.startFY+cfg.durasi)%100})</div>
+    <div class="v">${target==null?'—':fmtPct(target)}</div>
+    <div class="thr">${base==null?'Baseline tidak terukur di AP ini.':(monitor?'Sudah memenuhi threshold — fokus mempertahankan.':(reaches?'✓ Mencapai/melewati threshold '+fmtPct(cfg.thr):'Belum mencapai threshold '+fmtPct(cfg.thr)+' — pertimbangkan perubahan lebih besar.'))}</div>
+    ${base!=null?`<div class="years">${years}</div>`:''}
+  </div>`;
+}
+
+function renderOutputs(ap){
+  const st=apState(ap);
+  $('output-table').innerHTML = `<thead><tr><th>Kode</th><th>Indikator Output</th><th>Target LOP</th><th>Catatan</th></tr></thead><tbody>`+
+    TD.outputs.map((o,i)=>{
+      const s=st.outputs[i]||{};
+      return `<tr><td class="code">${o.code}</td><td>${o.name}</td>
+        <td><input class="v" data-oval="${i}" value="${s.val||''}" placeholder="${o.unit}"></td>
+        <td><input class="n" data-onote="${i}" value="${s.note||''}" placeholder="catatan / asumsi"></td></tr>`;
+    }).join('')+`</tbody>`;
+  document.querySelectorAll('[data-oval]').forEach(el=>el.addEventListener('input',e=>{ const i=el.dataset.oval; st.outputs[i]=Object.assign(st.outputs[i]||{},{val:e.target.value}); save(); renderSummary(ap); }));
+  document.querySelectorAll('[data-onote]').forEach(el=>el.addEventListener('input',e=>{ const i=el.dataset.onote; st.outputs[i]=Object.assign(st.outputs[i]||{},{note:e.target.value}); save(); }));
+}
+
+function renderSummary(ap){
+  const st=apState(ap);
+  let rows = TD.indOrder.map(k=>{
+    const cfg=TD.cfg[k]; const base=(TD.baseline[ap]||{})[k]; const monitor=meets(base,cfg.thr,cfg.dir);
+    const change=(st[k]&&st[k].change!=null)?st[k].change:(monitor?0:defaultChange(cfg));
+    const target=calcTarget(base,change,cfg.dir);
+    const reaches=target!=null&&(cfg.dir==='up'?target>=cfg.thr:target<=cfg.thr);
+    const pill = monitor?'<span class="pill pill-mon">Monitor</span>':(reaches?'<span class="pill pill-ok">Capai threshold</span>':'<span class="pill pill-no">Di bawah threshold</span>');
+    return `<tr><td><b>${cfg.oios}</b><div style="font-size:10.5px;color:var(--ink-3)">${cfg.name}</div></td>
+      <td class="num">${base==null?'—':fmtPct(base)}</td><td class="num">${fmtPct(cfg.thr)}</td>
+      <td class="num">${cfg.dir==='up'?'+':'−'}${change}pp</td>
+      <td class="num" style="font-weight:700;color:var(--navy)">${target==null?'—':fmtPct(target)}</td>
+      <td>${pill}</td></tr>`;
+  }).join('');
+  $('summary-table').innerHTML = `<thead><tr><th>Indikator Outcome</th><th class="num">Baseline</th><th class="num">Threshold</th><th class="num">Perubahan</th><th class="num">Target LOP</th><th>Status</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+$('ap-notes').addEventListener('input',e=>{ apState($('ap').value).notes=e.target.value; save(); });
+$('btn-reset-ap').addEventListener('click',()=>{ const ap=$('ap').value; delete store[ap]; save(); render(ap); });
+
+bindAp();
+</script>
+
+</body>
+</html>
