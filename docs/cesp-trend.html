@@ -153,7 +153,7 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
   <section style="padding-bottom:30px">
     <div class="sec-eyebrow">Perbandingan antar-AP &amp; antar-indikator</div>
     <h2 class="sec-title">Tabel Perbandingan (Baseline &middot; Evaluasi &middot; AIM+)</h2>
-    <p class="sec-lead">Pilih beberapa AP dan beberapa indikator Outcome 3 (bisa lebih dari satu) untuk membandingkan dalam satu tabel.</p>
+    <p class="sec-lead">Fokus pada AP yang punya Outcome 3 (AIM+/FRS) saja. Pilih beberapa AP dan beberapa indikator Outcome 3 (bisa lebih dari satu) untuk membandingkan dalam satu tabel.</p>
     <div class="filt">
       <div class="cmp-controls"><div class="flabel" style="margin:0">Area Program</div>
         <button class="chip-mini" data-all="ap">Semua AP OC3</button><button class="chip-mini" data-none="ap">Kosongkan</button></div>
@@ -176,19 +176,18 @@ const $ = id => document.getElementById(id);
 const fmtPct = v => v==null ? '—' : (v*100).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
 const STEPS = [['base','FY22','#9AA7B4'],['outmon','FY24','#5B8BB5'],['eval','FY25','#1B4F82'],['aim','FY26','#E86100']];
 
-/* ---- AP dropdown (AIM+ OC3 APs grouped first) ---- */
+/* ---- AP dropdown (hanya AP Outcome 3 / AIM+) ---- */
 function bindAp() {
   const sel = $('ap');
   const og1 = document.createElement('optgroup'); og1.label='AP Outcome 3 (AIM+)';
-  const og2 = document.createElement('optgroup'); og2.label='AP CESP lainnya';
-  CD.aps.forEach(ap => {
+  CD.aimAps.forEach(ap => {
     if (!CD.data[ap]) return;
     const o=document.createElement('option'); o.value=ap; o.textContent=ap;
-    (CD.aimAps.includes(ap)?og1:og2).appendChild(o);
+    og1.appendChild(o);
   });
-  sel.appendChild(og1); sel.appendChild(og2);
+  sel.appendChild(og1);
   sel.addEventListener('change', ()=>render(sel.value));
-  render(CD.aims && CD.aimAps[0] || CD.aimAps[0]);
+  render(CD.aimAps[0]);
   sel.value = CD.aimAps[0];
 }
 
@@ -289,8 +288,8 @@ const selAps = new Set(CD.aimAps);                         // default: 9 AIM+ OC
 const mappedIds = CD.inds.filter(i=>i.aim).map(i=>i.id);
 const selInds = new Set(mappedIds);                        // default: OIOS 6/7/22
 function buildChips() {
-  $('cmp-aps').innerHTML = CD.aps.filter(a=>CD.data[a]).map(a =>
-    `<button class="chip-tog${CD.aimAps.includes(a)?' oc3':''}${selAps.has(a)?' on':''}" data-ap="${a}">${a}</button>`).join('');
+  $('cmp-aps').innerHTML = CD.aimAps.filter(a=>CD.data[a]).map(a =>
+    `<button class="chip-tog oc3${selAps.has(a)?' on':''}" data-ap="${a}">${a}</button>`).join('');
   $('cmp-inds').innerHTML = CD.inds.map(ind =>
     `<button class="chip-tog${selInds.has(ind.id)?' on':''}" data-ind="${ind.id}" title="${ind.name}">${ind.oios||ind.id}</button>`).join('');
   document.querySelectorAll('#cmp-aps [data-ap]').forEach(b=>b.addEventListener('click',()=>{
@@ -306,7 +305,7 @@ document.querySelectorAll('[data-all],[data-none]').forEach(b=>b.addEventListene
 }));
 function renderCompare() {
   const inds = CD.inds.filter(i=>selInds.has(i.id));
-  const aps = CD.aps.filter(a=>selAps.has(a)&&CD.data[a]);
+  const aps = CD.aimAps.filter(a=>selAps.has(a)&&CD.data[a]);
   let rows='';
   aps.forEach(ap => inds.forEach(ind => {
     const d = (CD.data[ap]||{})[ind.id]; if(!d) return;
