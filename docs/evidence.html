@@ -122,8 +122,8 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
     <a class="lnk" href="threshold-dashboard.html">&#128202; Dashboard</a>
     <a class="lnk" href="opsi-threshold-per-indikator.html">&#128203; Opsi Threshold</a>
     <a class="lnk active" href="evidence.html">&#128218; Evidence</a>
-    <a class="lnk" href="cesp-trend.html">&#128200; Tren CESP</a>
-    <a class="lnk" href="planning.html">&#129517; Planning</a>
+    <a class="lnk" href="cesp-trend.html">&#128200; Trend TP CESP</a>
+    <a class="lnk" href="setting-target.html">&#127919; Setting Target</a>
     <a class="lnk" href="methodology.html">&#128214; Metodologi</a>
     <a class="lnk" href="references.html">&#128196; Referensi</a>
     <a class="back" href="threshold-dashboard.html">&larr; Ke Dashboard</a>
@@ -148,13 +148,6 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
   </div>
 </section>
 
-<section id="history">
-  <div class="sec-eyebrow">Modul 3&ndash;4 &middot; Indicator History &amp; Comparison</div>
-  <h2 class="sec-title">Riwayat &amp; Perbandingan per Indikator</h2>
-  <div class="selector-row"><label for="ev-ind">Indikator</label><select id="ev-ind"></select></div>
-  <div id="ind-history"></div>
-</section>
-
 <section id="quality">
   <div class="sec-eyebrow">Modul 13&ndash;14 &middot; Data Quality &amp; Evidence Strength</div>
   <h2 class="sec-title">Kualitas &amp; Kekuatan Bukti (AIM+ FY26)</h2>
@@ -162,19 +155,12 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
   <div class="card" style="overflow-x:auto"><table class="q-table" id="quality-table"></table></div>
 </section>
 
-<section id="review" style="padding-bottom:26px">
-  <div class="sec-eyebrow">Modul 5 &middot; Baseline Review Panel</div>
+<section id="review" style="padding-bottom:30px">
+  <div class="sec-eyebrow">Baseline Review Panel</div>
   <h2 class="sec-title">Panel Tinjauan Baseline</h2>
-  <p class="sec-lead">Membandingkan baseline AIM+ FY26 dengan studi sebelumnya (TP-CESP, bila ada) dan menandai perubahan yang perlu divalidasi.</p>
+  <p class="sec-lead">Membandingkan baseline AIM+ FY26 dengan evaluasi TP-CESP (ringkas) dan menandai perubahan yang perlu divalidasi. Detail tren per AP ada di halaman <a href="cesp-trend.html">Trend TP CESP</a>.</p>
   <div class="card" style="overflow-x:auto"><table class="rev-table" id="review-table"></table></div>
   <p class="sec-note" style="margin-top:12px">&#9888;&#65039; Perbandingan antar-studi harus dibaca dengan hati-hati: populasi, komposisi AP, dan instrumen antar periode dapat berbeda &mdash; selisih belum tentu perubahan nyata.</p>
-</section>
-
-<section id="future" style="padding-top:8px; padding-bottom:30px">
-  <div class="sec-eyebrow">Sumber Bukti yang Menunggu Data</div>
-  <h2 class="sec-title">Belum Terintegrasi</h2>
-  <p class="sec-lead">Modul di bawah aktif begitu data diisi. Skema tersedia agar pengisian konsisten.</p>
-  <div class="plan-grid" id="awaiting-sources"></div>
 </section>
 </div>
 
@@ -211,49 +197,7 @@ function showStudy(id) {
   </div>`;
 }
 
-/* ---- Module 3-4: indicator history + comparison ---- */
-function bindIndSelect() {
-  const sel=$('ev-ind');
-  ED.order.forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=ED.ind[k].code+' — '+ED.ind[k].name; sel.appendChild(o); });
-  sel.addEventListener('change',()=>renderHistory(sel.value));
-  renderHistory(ED.order[0]);
-}
-function renderHistory(k) {
-  const ie = ED.indEvidence[k], ind = ED.ind[k];
-  // build history steps from studies that carry this indicator, in order
-  const steps = ED.studies.map(s=>{
-    const v = (s.indicators||{})[k];
-    return { name:s.name, yr:s.yearLabel, status:s.status, value:v?v.value:null };
-  });
-  const stepHtml = steps.map(st=>`
-    <div class="hist-step ${st.value==null?'await':''}">
-      <div class="yr">${st.yr}</div>
-      <div class="v">${st.value==null?'—':fmtPct(st.value)}</div>
-      <div class="m">${st.name}${st.value==null?' · <i>menunggu data</i>':''}</div>
-    </div>`).join('<div class="chain-arrow" style="align-self:center">&#8594;</div>');
-  // comparison table: metadata that lets users judge real change vs method differences
-  const q = ie.aimfy26;
-  const cmp = `<table class="q-table" style="margin-top:14px"><thead><tr>
-    <th>Studi</th><th class="num">Nilai</th><th class="num">n</th><th class="num">95% CI</th><th>Cakupan AP</th><th>Metode</th></tr></thead><tbody>
-    ${ie.tpcesp?`<tr><td>TP-CESP Baseline</td><td class="num">${fmtPct(ie.tpcesp.base)}</td><td class="num">—</td><td class="num">—</td><td>—</td><td>Survei RT</td></tr>
-    <tr><td>TP-CESP Evaluation</td><td class="num">${fmtPct(ie.tpcesp.eval)}</td><td class="num">~658*</td><td class="num">—</td><td>—</td><td>Survei RT</td></tr>`:''}
-    <tr style="background:var(--blue-bg)"><td><b>AIM+ FY26 (aktif)</b></td><td class="num">${fmtPct(q.value)}</td><td class="num">${fmtInt(q.n)}</td>
-      <td class="num">${q.ci[0]==null?'—':fmtPct(q.ci[0])+'–'+fmtPct(q.ci[1])}</td><td>${q.apCoverage}/9 AP</td><td>KOBO</td></tr>
-    <tr class="await" style="opacity:.7"><td>AIM+ Endline FY30</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td>—</td><td>rencana</td></tr>
-    </tbody></table>
-    ${ie.tpcesp?'<p class="sec-note" style="margin-top:10px">* N evaluasi TP-CESP relatif kecil; selisih nilai bisa mencerminkan perbedaan populasi/instrumen, bukan hanya perubahan nyata.</p>':''}`;
-  $('ind-history').innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-      <span class="strength-pill ${S_CLS[ie.strength]}">Evidence: ${ie.strength}</span>
-      <span class="strength-pill s-moderate">n=${fmtInt(q.n)}</span>
-      <span class="strength-pill s-moderate">Cakupan ${q.apCoverage}/9 AP</span>
-      ${q.unreliable?'<span class="strength-pill s-weak">Baseline perlu validasi</span>':''}
-    </div>
-    <div class="hist" style="display:flex;flex-wrap:wrap;align-items:stretch">${stepHtml}</div>
-    ${cmp}`;
-}
-
-/* ---- Module 13-14: data quality + evidence strength ---- */
+/* ---- data quality + evidence strength ---- */
 function renderQuality() {
   const rows = ED.order.map(k=>{ const q=ED.indEvidence[k].aimfy26, s=ED.indEvidence[k].strength, ind=ED.ind[k];
     return `<tr><td>${ind.code} — ${ind.name}</td>
@@ -287,18 +231,8 @@ function renderReview() {
   $('review-table').innerHTML = `<thead><tr><th>Indikator</th><th class="num">Baseline FY26</th><th class="num">Studi sebelumnya</th><th class="num">Selisih</th><th class="num">95% CI FY26</th><th>Status</th><th>Interpretasi</th></tr></thead><tbody>${rows}</tbody>`;
 }
 
-/* ---- awaiting sources with fill-in schema ---- */
-function renderAwaiting() {
-  const t=ED.template;
-  const cards = t.awaitingSources.map(src=>`<div class="awaiting"><span class="tag">&#8987; Menunggu data</span><h4>${src}</h4>
-    <p>Belum terintegrasi. Isi sesuai skema studi untuk mengaktifkan modul terkait.</p></div>`).join('');
-  const schema = `<div class="awaiting" style="grid-column:1/-1"><span class="tag">&#128196; Skema Data</span><h4>Format entri studi (studySchema)</h4>
-    <div class="schema">${JSON.stringify(t.studySchema,null,2)}</div></div>`;
-  $('awaiting-sources').innerHTML = cards + schema;
-}
-
 renderTimeline(); if(ED.studies.length) showStudy('aim-fy26');
-bindIndSelect(); renderQuality(); renderReview(); renderAwaiting();
+renderQuality(); renderReview();
 </script>
 
 </body>

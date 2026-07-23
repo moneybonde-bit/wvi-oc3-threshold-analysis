@@ -89,6 +89,15 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
 .spark i { width:7px; background:var(--blue); border-radius:1px; display:inline-block; }
 .delta-up { color:var(--green); font-weight:700; } .delta-down { color:var(--red); font-weight:700; } .delta-flat { color:var(--ink-3); }
 .sec-note { font-size:11.5px; color:var(--ink-3); background:var(--gray-bg); border-radius:var(--r-sm); padding:9px 13px; margin-top:12px; line-height:1.55; }
+/* multi-select compare */
+.filt { background:var(--surface); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:14px 18px; margin-bottom:14px; }
+.filt .flabel { font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-3); margin:4px 0 7px; }
+.chips { display:flex; flex-wrap:wrap; gap:7px; }
+.chip-tog { font-size:11.5px; font-weight:700; border:1.5px solid var(--line); background:#fff; color:var(--ink-2); border-radius:999px; padding:5px 12px; cursor:pointer; font-family:inherit; }
+.chip-tog.on { background:var(--blue); border-color:var(--blue); color:#fff; }
+.chip-tog.oc3.on { background:var(--green); border-color:var(--green); }
+.chip-mini { font-size:10.5px; font-weight:700; color:var(--blue); background:var(--blue-bg); border:none; border-radius:6px; padding:4px 9px; cursor:pointer; font-family:inherit; margin-left:6px; }
+.cmp-controls { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
 </style>
 </head>
 <body>
@@ -100,8 +109,8 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
     <a class="lnk" href="threshold-dashboard.html">&#128202; Dashboard</a>
     <a class="lnk" href="opsi-threshold-per-indikator.html">&#128203; Opsi Threshold</a>
     <a class="lnk" href="evidence.html">&#128218; Evidence</a>
-    <a class="lnk active" href="cesp-trend.html">&#128200; Tren CESP</a>
-    <a class="lnk" href="planning.html">&#129517; Planning</a>
+    <a class="lnk active" href="cesp-trend.html">&#128200; Trend TP CESP</a>
+    <a class="lnk" href="setting-target.html">&#127919; Setting Target</a>
     <a class="lnk" href="methodology.html">&#128214; Metodologi</a>
     <a class="lnk" href="references.html">&#128196; Referensi</a>
     <a class="back" href="evidence.html">&larr; Ke Evidence</a>
@@ -109,8 +118,8 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
 </nav>
 
 <header class="chead"><div class="wrap">
-  <h1>Tren CESP &rarr; AIM+ (per AP &middot; Outcome 3)</h1>
-  <p>Hasil fase sebelumnya (TP-CESP FY22&ndash;FY25: baseline &rarr; outcome monitoring &rarr; evaluasi) dan evaluasi CP, sebagai pembanding tren untuk baseline AIM+ FY26. Dibedah per Area Program, dengan disagregasi jenis kelamin.</p>
+  <h1>Trend Evaluasi TP-CESP &rarr; AIM+ (Outcome 3)</h1>
+  <p>Hasil fase sebelumnya (TP-CESP FY22&ndash;FY25: baseline &rarr; outcome monitoring &rarr; evaluasi) dan evaluasi CP, sebagai pembanding tren untuk baseline AIM+ FY26. Dibedah per Area Program (single) atau dibandingkan antar-AP (tabel), dengan disagregasi jenis kelamin.</p>
   <div class="legend">
     <span class="lg"><span class="dotm" style="background:#9AA7B4"></span><b>FY22</b> Baseline</span>
     <span class="lg"><span class="dotm" style="background:#5B8BB5"></span><b>FY24</b> Out. Monitoring</span>
@@ -134,11 +143,27 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
     <div class="trend-grid" id="trend-cards"></div>
   </section>
 
-  <section style="padding-bottom:30px">
+  <section>
     <div class="sec-eyebrow">Seluruh indikator Outcome 3 &mdash; AP terpilih</div>
     <h2 class="sec-title">Rincian per Indikator</h2>
     <div class="tbl-wrap"><table class="ctbl" id="detail-table"></table></div>
     <div class="sec-note" id="tbl-note"></div>
+  </section>
+
+  <section style="padding-bottom:30px">
+    <div class="sec-eyebrow">Perbandingan antar-AP &amp; antar-indikator</div>
+    <h2 class="sec-title">Tabel Perbandingan (Baseline &middot; Evaluasi &middot; AIM+)</h2>
+    <p class="sec-lead">Pilih beberapa AP dan beberapa indikator Outcome 3 (bisa lebih dari satu) untuk membandingkan dalam satu tabel.</p>
+    <div class="filt">
+      <div class="cmp-controls"><div class="flabel" style="margin:0">Area Program</div>
+        <button class="chip-mini" data-all="ap">Semua AP OC3</button><button class="chip-mini" data-none="ap">Kosongkan</button></div>
+      <div class="chips" id="cmp-aps"></div>
+      <div class="cmp-controls" style="margin-top:12px"><div class="flabel" style="margin:0">Indikator Outcome 3</div>
+        <button class="chip-mini" data-all="ind">Terpetakan (OIOS 6/7/22)</button><button class="chip-mini" data-none="ind">Kosongkan</button></div>
+      <div class="chips" id="cmp-inds"></div>
+    </div>
+    <div class="tbl-wrap"><table class="ctbl" id="cmp-table"></table></div>
+    <div class="sec-note">Baseline FY22 &amp; Evaluasi FY25 = TP-CESP/CP; AIM+ FY26 = baseline AIM+ (indikator terpetakan). Sel kosong (&mdash;) = tidak diukur di fase/AP tsb. Δ base&rarr;eval memakai arah indikator (hijau = membaik).</div>
   </section>
 </div>
 
@@ -256,6 +281,47 @@ function render(ap) {
   $('tbl-note').innerHTML = 'CESP = TP-CESP FY22&ndash;FY25 (Baseline/OutMon dari Table9; Evaluasi FY25). CP = evaluasi Child Protection (tersedia untuk sebagian AP). &Delta; base&rarr;eval memakai arah indikator (hijau = membaik). Kolom AIM+ FY26 hanya untuk indikator terpetakan (OIOS 6/7/22). Selisih antar-fase bisa mencerminkan perbedaan instrumen/sampel.';
 }
 bindAp();
+
+/* ============================================================
+   Multi-select comparison table (antar-AP × antar-indikator)
+   ============================================================ */
+const selAps = new Set(CD.aimAps);                         // default: 9 AIM+ OC3 APs
+const mappedIds = CD.inds.filter(i=>i.aim).map(i=>i.id);
+const selInds = new Set(mappedIds);                        // default: OIOS 6/7/22
+function buildChips() {
+  $('cmp-aps').innerHTML = CD.aps.filter(a=>CD.data[a]).map(a =>
+    `<button class="chip-tog${CD.aimAps.includes(a)?' oc3':''}${selAps.has(a)?' on':''}" data-ap="${a}">${a}</button>`).join('');
+  $('cmp-inds').innerHTML = CD.inds.map(ind =>
+    `<button class="chip-tog${selInds.has(ind.id)?' on':''}" data-ind="${ind.id}" title="${ind.name}">${ind.oios||ind.id}</button>`).join('');
+  document.querySelectorAll('#cmp-aps [data-ap]').forEach(b=>b.addEventListener('click',()=>{
+    const a=b.dataset.ap; selAps.has(a)?selAps.delete(a):selAps.add(a); buildChips(); renderCompare(); }));
+  document.querySelectorAll('#cmp-inds [data-ind]').forEach(b=>b.addEventListener('click',()=>{
+    const i=b.dataset.ind; selInds.has(i)?selInds.delete(i):selInds.add(i); buildChips(); renderCompare(); }));
+}
+document.querySelectorAll('[data-all],[data-none]').forEach(b=>b.addEventListener('click',()=>{
+  const kind=b.dataset.all||b.dataset.none, on=!!b.dataset.all;
+  if(kind==='ap'){ selAps.clear(); if(on) CD.aimAps.forEach(a=>selAps.add(a)); }
+  else { selInds.clear(); if(on) mappedIds.forEach(i=>selInds.add(i)); }
+  buildChips(); renderCompare();
+}));
+function renderCompare() {
+  const inds = CD.inds.filter(i=>selInds.has(i.id));
+  const aps = CD.aps.filter(a=>selAps.has(a)&&CD.data[a]);
+  let rows='';
+  aps.forEach(ap => inds.forEach(ind => {
+    const d = (CD.data[ap]||{})[ind.id]; if(!d) return;
+    const cell = k => d[k]?fmtPct(d[k].pct):'—';
+    let delta='—';
+    if(d.base&&d.eval){ const raw=(d.eval.pct-d.base.pct)*100, good=ind.dir==='up'?raw>0:raw<0;
+      delta=`<span class="${Math.abs(raw)<1?'delta-flat':(good?'delta-up':'delta-down')}">${raw>=0?'+':''}${raw.toFixed(1).replace('.',',')}pp</span>`; }
+    rows += `<tr><td><b>${ap}</b></td><td class="oios">${ind.oios||'—'}</td><td class="ind" style="font-size:11px">${ind.name}</td>
+      <td class="num">${cell('base')}</td><td class="num">${cell('eval')}</td><td class="num">${d.aim?fmtPct(d.aim.pct):'—'}</td><td>${delta}</td></tr>`;
+  }));
+  $('cmp-table').innerHTML = (aps.length&&inds.length)
+    ? `<thead><tr><th>Area Program</th><th>AIM+</th><th>Indikator</th><th class="num">Baseline FY22</th><th class="num">Evaluasi FY25</th><th class="num">AIM+ FY26</th><th>&Delta; base&rarr;eval</th></tr></thead><tbody>${rows||'<tr><td colspan="7" style="color:var(--ink-3)">Tidak ada data untuk kombinasi terpilih.</td></tr>'}</tbody>`
+    : '<tbody><tr><td style="color:var(--ink-3);padding:14px">Pilih minimal satu AP dan satu indikator.</td></tr></tbody>';
+}
+buildChips(); renderCompare();
 </script>
 
 </body>
