@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Metodologi — WVI PEARL Threshold Analysis</title>
+<title>Metodologi — WVI Threshold Analysis</title>
 <style>
 :root {
   --navy:#0B1F3F; --navy-2:#14315C; --orange:#E86100;
@@ -73,9 +73,10 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
 
 <nav class="nav" aria-label="Navigasi utama">
   <div class="nav-in">
-    <a class="nav-brand" href="index.html"><span class="dot"></span>WVI PEARL &middot; Threshold</a>
+    <a class="nav-brand" href="index.html"><span class="dot"></span>Threshold Analysis</a>
     <a class="lnk" href="index.html">&#127968; Home</a>
     <a class="lnk" href="threshold-dashboard.html">&#128202; Dashboard</a>
+    <a class="lnk" href="opsi-threshold-per-indikator.html">&#128203; Opsi Threshold</a>
     <a class="lnk" href="evidence.html">&#128218; Evidence</a>
     <a class="lnk" href="planning.html">&#129517; Planning</a>
     <a class="lnk active" href="methodology.html">&#128214; Metodologi</a>
@@ -90,14 +91,14 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
   <div class="sec-eyebrow">Metodologi &middot; 01</div>
   <h2 class="sec-title">Empat Pendekatan (P1&ndash;P4)</h2>
   <div class="ap-grid"><div class="ap-card rise"><h3>P1 · Literature / OIOS</h3><div class="tag">Official Standard</div>
-  <div class="pmrow"><span class="plus">+</span><span>Tervalidasi eksternal; definisi identik; paling mudah dipertanggungjawabkan ke donor.</span></div><div class="pmrow"><span class="minus">−</span><span>Hanya tersedia untuk sebagian indikator (di OC3 ini: OIOS 22 & 27).</span></div></div><div class="ap-card rise"><h3>P2 · Best Performer</h3><div class="tag">Demonstrated Performance</div>
-  <div class="pmrow"><span class="plus">+</span><span>Berbasis kinerja yang SUDAH terbukti dicapai AP nyata — evidence-based dan kontekstual.</span></div><div class="pmrow"><span class="minus">−</span><span>Rentan outlier bila memakai satu AP; karenanya dipakai rata-rata kelompok terbaik.</span></div></div><div class="ap-card rise"><h3>P3 · Relative Improvement</h3><div class="tag">Historical Evidence</div>
+  <div class="pmrow"><span class="plus">+</span><span>Tervalidasi eksternal; definisi identik; paling mudah dipertanggungjawabkan ke donor.</span></div><div class="pmrow"><span class="minus">−</span><span>Hanya tersedia untuk sebagian indikator (di OC3 ini: OIOS 22 & 27).</span></div></div><div class="ap-card rise"><h3>P2 · Best Performer</h3><div class="tag">Best Performer (nilai AP terbaik)</div>
+  <div class="pmrow"><span class="plus">+</span><span>Angka nyata yang MEMANG SUDAH PERNAH dicapai satu AP — terbukti bisa terjadi, bukan asal tebak.</span></div><div class="pmrow"><span class="minus">−</span><span>Nilai satu AP terbaik; rentan outlier (mis. Nagekeo Ngada mendominasi beberapa indikator). Perlu dicek kewajaran konteksnya.</span></div></div><div class="ap-card rise"><h3>P3 · Relative Improvement</h3><div class="tag">Historical Evidence</div>
   <div class="pmrow"><span class="plus">+</span><span>Berbasis bukti perubahan internal program WVI (TP-CESP) — laju perubahan pernah terjadi.</span></div><div class="pmrow"><span class="minus">−</span><span>Hanya 3 indikator punya data historis; asumsi linearitas; populasi antar-periode berbeda.</span></div></div><div class="ap-card rise"><h3>P4 · Distribution</h3><div class="tag">Statistical Reference</div>
   <div class="pmrow"><span class="plus">+</span><span>Objektif dan transparan; memakai seluruh data AP (kuartil acuan sesuai arah).</span></div><div class="pmrow"><span class="minus">−</span><span>Baru 9 dari 17 AP nasional; posisi relatif belum tentu level mutu yang memadai.</span></div></div></div>
 </div></section>
 <section><div class="wrap">
   <div class="sec-eyebrow">Metodologi &middot; 02</div>
-  <h2 class="sec-title">Logika Pemilihan (PEARL)</h2>
+  <h2 class="sec-title">Logika Pemilihan Threshold</h2>
   <p class="sec-lead">Urutan baku memilih basis threshold &mdash; default yang dipakai dashboard.</p>
   <div class="logic rise"><div class="logic-steps">
     <div class="logic-step"><div class="n">1</div><h4>P1 bila standar resmi ada</h4><p>Bila ada benchmark internasional (OIOS, WHO, UNICEF, dsb.), selalu utamakan P1 &mdash; tervalidasi eksternal dan paling akuntabel ke donor.</p></div>
@@ -111,7 +112,7 @@ section { padding:38px 0 6px; scroll-margin-top:62px; }
   <div class="calc"><b>Baseline nasional tertimbang</b> = &Sigma;(bobot AP &times; rate AP) &divide; &Sigma;(bobot AP), dengan bobot = HH Targeted per AP (total 64.417 HH), dinormalisasi ulang hanya pada AP yang punya data di bawah filter aktif. Rate per AP = numerator &divide; denominator dari kolom <i>IND*_Num</i>/<i>IND*_Denom</i> pada unit record KOBO AIM+ FY26 (10.620 baris, 9 AP). Metode identik dengan Summary Dashboard di workbook sumber.</div>
 </div></section>
 
-<div class="footer">World Vision Indonesia &middot; PEARL Team &middot; AIM/AIM+ FY26 &middot; seluruh nilai threshold berlabel &ldquo;usulan untuk didiskusikan&rdquo; &middot; sumber: Analisis_4_Pendekatan_Threshold_OC3_FINAL.xlsx + unit record KOBO</div>
+<div class="footer">World Vision Indonesia &middot; AIM/AIM+ FY26 &middot; seluruh nilai threshold berlabel &ldquo;usulan untuk didiskusikan&rdquo; &middot; sumber: Analisis_4_Pendekatan_Threshold_OC3_FINAL.xlsx + unit record KOBO</div>
 
 </body>
 </html>
